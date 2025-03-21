@@ -131,7 +131,7 @@ void Simulator::processEvent(const Event &event, SchedulingAlgo algo) {
         // Schedule context switch out and (if not terminated) an I/O burst.
         int cs_out = params.tcs / 2;
         int ioStartTime = currentTime + cs_out;
-        if (proc->currentBurst < proc->cpuBursts.size() - 1) {
+        if (proc->currentBurst < static_cast<int>(proc->cpuBursts.size()) - 1) {
             std::ostringstream oss2;
             int ioCompletionTime = ioStartTime + proc->ioBursts[proc->currentBurst];
             oss2 << "Process " << proc->pid << " switching out of CPU; blocking on I/O until time " << ioCompletionTime;

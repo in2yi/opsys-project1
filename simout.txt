@@ -1,0 +1,68 @@
+-- number of processes: 3
+-- number of CPU-bound processes: 1
+-- number of I/O-bound processes: 2
+-- CPU-bound average CPU burst time: 0.000 ms
+-- I/O-bound average CPU burst time: 0.000 ms
+-- overall average CPU burst time: 0.000 ms
+-- CPU-bound average I/O burst time: 0.000 ms
+-- I/O-bound average I/O burst time: 0.000 ms
+-- overall average I/O burst time: 0.000 ms
+Algorithm FCFS
+-- CPU utilization: 0.000%
+-- CPU-bound average wait time: 0.000 ms
+-- I/O-bound average wait time: 0.000 ms
+-- overall average wait time: 0.000 ms
+-- CPU-bound average turnaround time: 0.000 ms
+-- I/O-bound average turnaround time: 0.000 ms
+-- overall average turnaround time: 0.000 ms
+-- CPU-bound number of context switches: 0
+-- I/O-bound number of context switches: 0
+-- overall number of context switches: 0
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+Algorithm SJF
+-- CPU utilization: 0.000%
+-- CPU-bound average wait time: 0.000 ms
+-- I/O-bound average wait time: 0.000 ms
+-- overall average wait time: 0.000 ms
+-- CPU-bound average turnaround time: 0.000 ms
+-- I/O-bound average turnaround time: 0.000 ms
+-- overall average turnaround time: 0.000 ms
+-- CPU-bound number of context switches: 0
+-- I/O-bound number of context switches: 0
+-- overall number of context switches: 0
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+Algorithm SRT
+-- CPU utilization: 0.000%
+-- CPU-bound average wait time: 0.000 ms
+-- I/O-bound average wait time: 0.000 ms
+-- overall average wait time: 0.000 ms
+-- CPU-bound average turnaround time: 0.000 ms
+-- I/O-bound average turnaround time: 0.000 ms
+-- overall average turnaround time: 0.000 ms
+-- CPU-bound number of context switches: 0
+-- I/O-bound number of context switches: 0
+-- overall number of context switches: 0
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+Algorithm RR
+-- CPU utilization: 0.000%
+-- CPU-bound average wait time: 0.000 ms
+-- I/O-bound average wait time: 0.000 ms
+-- overall average wait time: 0.000 ms
+-- CPU-bound average turnaround time: 0.000 ms
+-- I/O-bound average turnaround time: 0.000 ms
+-- overall average turnaround time: 0.000 ms
+-- CPU-bound number of context switches: 0
+-- I/O-bound number of context switches: 0
+-- overall number of context switches: 0
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+-- CPU-bound percentage of CPU bursts completed within one time slice: 0.000%
+-- I/O-bound percentage of CPU bursts completed within one time slice: 0.000%
+-- overall percentage of CPU bursts completed within one time slice: 0.000%
