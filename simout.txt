@@ -1,68 +1,66 @@
 -- number of processes: 3
 -- number of CPU-bound processes: 1
 -- number of I/O-bound processes: 2
--- CPU-bound average CPU burst time: 0.000 ms
--- I/O-bound average CPU burst time: 0.000 ms
--- overall average CPU burst time: 0.000 ms
--- CPU-bound average I/O burst time: 0.000 ms
--- I/O-bound average I/O burst time: 0.000 ms
--- overall average I/O burst time: 0.000 ms
+
 Algorithm FCFS
--- CPU utilization: 0.000%
--- CPU-bound average wait time: 0.000 ms
--- I/O-bound average wait time: 0.000 ms
--- overall average wait time: 0.000 ms
--- CPU-bound average turnaround time: 0.000 ms
--- I/O-bound average turnaround time: 0.000 ms
--- overall average turnaround time: 0.000 ms
+-- CPU utilization: 98.198%
+-- CPU-bound average wait time: 2095.500 ms
+-- I/O-bound average wait time: 790.361 ms
+-- overall average wait time: 1074.087 ms
+-- CPU-bound average turnaround time: 3379.500 ms
+-- I/O-bound average turnaround time: 1860.694 ms
+-- overall average turnaround time: 2190.870 ms
 -- CPU-bound number of context switches: 0
 -- I/O-bound number of context switches: 0
 -- overall number of context switches: 0
 -- CPU-bound number of preemptions: 0
 -- I/O-bound number of preemptions: 0
 -- overall number of preemptions: 0
+
 Algorithm SJF
--- CPU utilization: 0.000%
--- CPU-bound average wait time: 0.000 ms
--- I/O-bound average wait time: 0.000 ms
--- overall average wait time: 0.000 ms
--- CPU-bound average turnaround time: 0.000 ms
--- I/O-bound average turnaround time: 0.000 ms
--- overall average turnaround time: 0.000 ms
+-- CPU utilization: 108.388%
+-- CPU-bound average wait time: 2648.700 ms
+-- I/O-bound average wait time: 773.028 ms
+-- overall average wait time: 1180.783 ms
+-- CPU-bound average turnaround time: 3932.700 ms
+-- I/O-bound average turnaround time: 1843.361 ms
+-- overall average turnaround time: 2297.565 ms
 -- CPU-bound number of context switches: 0
 -- I/O-bound number of context switches: 0
 -- overall number of context switches: 0
 -- CPU-bound number of preemptions: 0
 -- I/O-bound number of preemptions: 0
 -- overall number of preemptions: 0
+
 Algorithm SRT
--- CPU utilization: 0.000%
--- CPU-bound average wait time: 0.000 ms
--- I/O-bound average wait time: 0.000 ms
--- overall average wait time: 0.000 ms
--- CPU-bound average turnaround time: 0.000 ms
--- I/O-bound average turnaround time: 0.000 ms
--- overall average turnaround time: 0.000 ms
+-- CPU utilization: 108.388%
+-- CPU-bound average wait time: 2648.700 ms
+-- I/O-bound average wait time: 773.028 ms
+-- overall average wait time: 1180.783 ms
+-- CPU-bound average turnaround time: 3932.700 ms
+-- I/O-bound average turnaround time: 1843.361 ms
+-- overall average turnaround time: 2297.565 ms
 -- CPU-bound number of context switches: 0
 -- I/O-bound number of context switches: 0
 -- overall number of context switches: 0
 -- CPU-bound number of preemptions: 0
 -- I/O-bound number of preemptions: 0
 -- overall number of preemptions: 0
+
 Algorithm RR
--- CPU utilization: 0.000%
--- CPU-bound average wait time: 0.000 ms
--- I/O-bound average wait time: 0.000 ms
--- overall average wait time: 0.000 ms
--- CPU-bound average turnaround time: 0.000 ms
--- I/O-bound average turnaround time: 0.000 ms
--- overall average turnaround time: 0.000 ms
+-- CPU utilization: 193.718%
+-- CPU-bound average wait time: 210.071 ms
+-- I/O-bound average wait time: 117.432 ms
+-- overall average wait time: 139.793 ms
+-- CPU-bound average turnaround time: 418.600 ms
+-- I/O-bound average turnaround time: 291.194 ms
+-- overall average turnaround time: 318.891 ms
 -- CPU-bound number of context switches: 0
 -- I/O-bound number of context switches: 0
 -- overall number of context switches: 0
--- CPU-bound number of preemptions: 0
--- I/O-bound number of preemptions: 0
--- overall number of preemptions: 0
+-- CPU-bound number of preemptions: 4
+-- I/O-bound number of preemptions: 11
+-- overall number of preemptions: 15
 -- CPU-bound percentage of CPU bursts completed within one time slice: 0.000%
 -- I/O-bound percentage of CPU bursts completed within one time slice: 0.000%
 -- overall percentage of CPU bursts completed within one time slice: 0.000%
