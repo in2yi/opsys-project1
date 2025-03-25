@@ -17,7 +17,11 @@
 // Helper Functions for Printing Queues
 // -----------------------------------------------------------------------------
 
-// Print a standard FIFO queue of Process pointers.
+/**
+ * @brief Print a queue of Process pointers
+ * 
+ * @param readyQueue Queue of Process pointers
+ */
 void printQueue(const std::queue<Process*>& readyQueue) {
     std::queue<Process*> q = readyQueue;
     std::cout << "[Q";
@@ -32,7 +36,12 @@ void printQueue(const std::queue<Process*>& readyQueue) {
     std::cout << "]\n";
 }
 
-// Template function to print a priority queue of Process pointers.
+/**
+ * @brief Print a priority queue of Process pointers
+ * 
+ * @tparam T Type of the priority queue
+ * @param readyQueue Queue of Process pointers
+ */
 template<typename T>
 void printPriorityQueue(T readyQueue) {
     std::cout << "[Q";
@@ -652,6 +661,7 @@ void OpSys::printStats(std::ofstream& simout) {
             totalIoWait += proc->total_turnaround - proc->getTotalCpuTime() - (proc->num_preempts * contextSwitchTime);
         }  
     }
+    // Calculate statistics
     double utilization = std::ceil((overallCpuTime / (double)time) * 100000) / 1000;
     double avgCpuTurn = std::ceil(((double)cpuTurnaround / cpuBursts) * 1000) / 1000 + (contextSwitchTime / 2);
     double avgIoTurn = std::ceil(((double)ioTurnaround / ioBursts) * 1000) / 1000 + (contextSwitchTime / 2);
@@ -659,7 +669,8 @@ void OpSys::printStats(std::ofstream& simout) {
     double avgWaitCpu = std::ceil(((double)totalCpuWait / cpuBursts) * 1000) / 1000 - (contextSwitchTime / 2);
     double avgWaitIo = std::ceil(((double)totalIoWait / ioBursts) * 1000) / 1000 - (contextSwitchTime / 2);
     double avgWait = std::ceil(((double)(totalCpuWait + totalIoWait) / (ioBursts + cpuBursts)) * 1000) / 1000 - (contextSwitchTime / 2);
- 
+
+    // Print statistics
     simout << "-- CPU utilization: " << std::fixed << std::setprecision(3) << utilization << "%\n";
     simout << "-- CPU-bound average wait time: " << std::setprecision(3) << avgWaitCpu << " ms\n";
     simout << "-- I/O-bound average wait time: " << std::setprecision(3) << avgWaitIo << " ms\n";
@@ -691,10 +702,14 @@ void OpSys::printRRStats(std::ofstream& simout) {
             ioWithinTS += burstsWithin; 
             ioBursts += proc->num_cpu_bursts;
         }
-    }  
+    }
+    
+    // Calculate statistics
     double cpuPercentage = std::ceil(((double)cpuWithinTS / cpuBursts) * 100000) / 1000;
     double ioPercentage = std::ceil(((double)ioWithinTS / ioBursts) * 100000) / 1000;
     double overallPercentage = std::ceil(((double)(ioWithinTS + cpuWithinTS) / (ioBursts + cpuBursts)) * 100000) / 1000;
+
+    // Print statistics
     simout << "-- CPU-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << cpuPercentage << "%\n";
     simout << "-- I/O-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << ioPercentage << "%\n";
     simout << "-- overall percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << overallPercentage << "%\n";
@@ -703,7 +718,7 @@ void OpSys::printRRStats(std::ofstream& simout) {
 // -----------------------------------------------------------------------------
 // Process Member Functions
 // -----------------------------------------------------------------------------
-
+// Update process
 void Process::updateProcess(int currentTime) {
     burst_index++;
     if (onCPUBurst()) {
@@ -723,6 +738,7 @@ void Process::updateProcess(int currentTime) {
     }
 }
 
+// Preempt process
 void Process::preempt(int elapsedTime) {
     num_preempts++;
     num_switches++;  
@@ -730,6 +746,7 @@ void Process::preempt(int elapsedTime) {
     tau_remaining -= elapsedTime;
 }
 
+// Reset process
 void Process::reset() {
     burst_index = 0;
     burst_completion_time = 0;
@@ -747,6 +764,7 @@ void Process::reset() {
     total_turnaround = 0;
 }
 
+// Get burst completion time
 int Process::getTotalCpuTime() {
     int total_cpu = 0;
     for (int i = 0; i < num_total_bursts; i += 2)
@@ -767,6 +785,11 @@ int contextSwitchTime;
 double alpha;
 int timeSlice;
 
+/**
+ * @brief Function to get the next exponential random variable
+ * 
+ * @return double Double value of the next exponential random variable
+ */
 double nextExp() {
     int found = 0;
     double x;
@@ -782,12 +805,21 @@ double nextExp() {
 // -----------------------------------------------------------------------------
 // Main Function
 // -----------------------------------------------------------------------------
-
+/**
+ * @brief Main function to run the simulation
+ * 
+ * @param argc Integer count of arguments
+ * @param argv Character array of arguments
+ * @return int Integer return value
+ */
 int main(int argc, char* argv[]) {
+    // Check for valid arguments
     if (argc != 9) {
         std::cerr << "ERROR: Invalid arg count\n";
         exit(1);
     }
+
+    // Set global variables
     numProcesses = atoi(argv[1]);          
     numCpuBound = atoi(argv[2]);      
     seed = atoi(argv[3]);       
@@ -796,6 +828,8 @@ int main(int argc, char* argv[]) {
     contextSwitchTime = atoi(argv[6]);                 
     alpha = atof(argv[7]);
     timeSlice = atoi(argv[8]);
+
+    // Check for invalid arguments
     if (numProcesses <= 0 || numProcesses > 260) {
         std::cerr << "ERROR: Invalid process simulation count\n";
         exit(1);
@@ -808,21 +842,26 @@ int main(int argc, char* argv[]) {
         std::cerr << "ERROR: Time values must be positive\n";
         exit(1);
     }
+
+    // Print simulation parameters
     std::cout << "<<< -- process set (n=" << argv[1] << ") with " << argv[2]
               << (numCpuBound != 1 ? " CPU-bound processes\n" : " CPU-bound process\n")
               << "<<< -- seed=" << argv[3] << "; lambda=" << std::fixed << std::setprecision(6) 
               << arrivalLambda << "; bound=" << argv[5] << "\n";
     srand48(seed);
+    // Create processes
     std::list<Process*> processes;
     float cpuCpuTotal = 0, ioCpuTotal = 0, cpuIoTotal = 0, ioIoTotal = 0;
     float numCpuCpu = 0, numIoCpu = 0, numCpuIo = 0, numIoIo = 0;
     for (int i = 0; i < numProcesses; i++) {
+        // Determine if process is CPU-bound or I/O-bound
         bool isCpuBound = (i < numCpuBound);
         int processArrivalTime = floor(nextExp());
         int numCPUBursts = std::ceil(drand48() * 32);
         int numIOBursts = numCPUBursts - 1;
         int totalBursts = numCPUBursts + numIOBursts;
         int* burstTimes = new int[totalBursts];
+        // Generate burst times
         for (int j = 0; j < totalBursts; j++) {
             int x = std::ceil(nextExp());
             if (isCpuBound) {
@@ -842,6 +881,7 @@ int main(int argc, char* argv[]) {
             }
             burstTimes[j] = x;
         }
+        // Create process
         Process* proc = new Process();
         proc->id = new char[4];
         std::snprintf(proc->id, 4, "%c%d", 'A' + (i / 10), i % 10);
@@ -858,6 +898,8 @@ int main(int argc, char* argv[]) {
         proc->time_remaining = proc->t;
         proc->total_cpu_time = proc->t;
         proc->tau_remaining = proc->tau;
+
+        // Add process to list
         processes.push_back(proc);
     }
     float cpuCpuAvg = (numCpuCpu != 0) ? (cpuCpuTotal / numCpuCpu) : 0;
@@ -866,6 +908,8 @@ int main(int argc, char* argv[]) {
     float ioCpuAvg = (numIoCpu != 0) ? (ioCpuTotal / numIoCpu) : 0;
     float ioIoAvg = (numIoIo != 0) ? (ioIoTotal / numIoIo) : 0;
     float ioAvg = ((numCpuIo + numIoIo) != 0) ? std::ceil(1000 * (cpuIoTotal + ioIoTotal) / (numCpuIo + numIoIo)) / 1000 : 0;
+
+    // Print process information
     for (Process* proc : processes) {
         if (proc->is_cpu_bound)
             std::cout << "\nCPU-bound";
@@ -882,6 +926,8 @@ int main(int argc, char* argv[]) {
         }
         std::cout << "\n";
     }
+
+    // Print simulation information
     std::ofstream simout("simout.txt");
     simout << "-- number of processes: " << numProcesses << "\n";
     simout << "-- number of CPU-bound processes: " << numCpuBound << "\n";
@@ -902,6 +948,8 @@ int main(int argc, char* argv[]) {
     std::cout << "<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << contextSwitchTime 
               << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha 
               << "; t_slice=" << timeSlice << "ms\n";
+
+    // Run simulations
     OpSys* simulation = new OpSys();
     simulation->contextSwitchTime = contextSwitchTime;
     simulation->timeSlice = timeSlice;
