@@ -19,10 +19,10 @@ public:
   bool is_cpu_bound;
   int num_cpu_bursts;
   int num_total_bursts;
-  int last_cpu_burst_start; 
+  int lastCpuBurstStart; 
   int time_remaining = 0;
   int tau_remaining = 0;
-  int last_switch_time = 0;
+  int lastSwitchTime = 0;
   /* Statistics */
   int num_switches = 1;
   int num_preempts = 0;
@@ -42,8 +42,8 @@ public:
   int burstCompletionTime() { return burst_completion_time; };
 
   void finishBurst() { burst_completion_time = 0; };
-  void update( int current_time ); // Increments burst index
-  void preempt( int elapsed_time );
+  void updateProcess(int currentTime); // Increments burst index
+  void preempt(int elapsedTime);
 
   void reset();
 };

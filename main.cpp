@@ -1,4 +1,3 @@
-// combined.cpp
 #include "opsys.h"
 #include "process.h"
 
@@ -14,1029 +13,929 @@
 #include <queue>
 #include <unordered_set>
 
-// ----------------------------------------------------------------------
-//                   FCFS (from fcfs.cpp)
-// ----------------------------------------------------------------------
-void OpSys::process_arrive_fcfs( int current_time )
-{
-  Process* p = unarrived.top();
-  unarrived.pop();
-  ready_fcfs.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " arrived; added to ready queue ";
-    print_queue(ready_fcfs);
-  }
-}
+// -----------------------------------------------------------------------------
+// Helper Functions for Printing Queues
+// -----------------------------------------------------------------------------
 
-void OpSys::start_cpu_use_fcfs( int current_time )
-{
-  Process* p = switching_to_run;
-  switching_to_run = NULL;
-  running = p;
-  p->waitBurst(current_time);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " started using the CPU for " << p->getT() << "ms burst ";
-    print_queue(ready_fcfs);
-  }
-}
-
-void OpSys::switch_out_cpu_fcfs( int current_time )
-{
-  Process* p = running;
-  running = NULL;
-  p->update(current_time);
-  int bursts_left = p->getCpuBurstsLeft();
-  if (bursts_left == 0)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " terminated ";
-    finished.push_back(p);
-    unfinished.erase(p);
-    print_queue(ready_fcfs);
-  }
-  else
-  {
-    p->waitBurst(current_time + t_cs/2);
-    if (!TRUNCATE || current_time < TRUNC_TIME)
-    {
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " completed a CPU burst; " << bursts_left 
-                << " burst" << (bursts_left == 1 ? "" : "s") << " to go ";
-      print_queue(ready_fcfs);
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " switching out of CPU; blocking on I/O until time " 
-                << p->burstCompletionTime() << "ms ";
-      print_queue(ready_fcfs);
-    }
-    waiting.push(p);
-  }
-  switching_to_io = p;
-  p->last_switch_time = current_time;
-}
-
-void OpSys::complete_io_fcfs( int current_time )
-{
-  Process* p = waiting.top();
-  waiting.pop();
-  p->update(current_time);
-  ready_fcfs.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " completed I/O; added to ready queue ";
-    print_queue(ready_fcfs);
-  }
-  p->finishBurst();
-}
-
-void OpSys::start_switch_in_fcfs( int current_time )
-{
-  switching_to_run = ready_fcfs.front();
-  ready_fcfs.pop();
-  switching_to_run->last_switch_time = current_time;
-}
-
-void OpSys::first_come_first_served()
-{
-  switching_to_run = NULL;
-  switching_to_io = NULL;
-  switching_to_ready = NULL;
-  time = 0;
-  std::cout << "time " << time << "ms: Simulator started for FCFS [Q empty]\n";
-  while (!unfinished.empty())
-  {
-    std::priority_queue<Action, std::vector<Action>, CompAction> action_queue;
-
-    if (switching_to_io != NULL)
-      action_queue.push({ switching_to_io->last_switch_time + t_cs/2, &OpSys::finish_io_switch_out, 0 });
- 
-    if (running == NULL)
-    {
-      if (switching_to_run == NULL)
-      {
-        if (switching_to_io == NULL && !ready_fcfs.empty())
-          action_queue.push({ time, &OpSys::start_switch_in_fcfs, 10 });
-      }
-      else
-        action_queue.push({ switching_to_run->last_switch_time + t_cs/2, &OpSys::start_cpu_use_fcfs, 2 });
-    }
-    else
-      action_queue.push({ running->burstCompletionTime(), &OpSys::switch_out_cpu_fcfs, 1 });
-
-    if (!waiting.empty())
-      action_queue.push({ waiting.top()->burstCompletionTime(), &OpSys::complete_io_fcfs, 3 });
-
-    if (!unarrived.empty())
-      action_queue.push({ unarrived.top()->arrival_time, &OpSys::process_arrive_fcfs, 4 });
-
-    time = action_queue.top().time;
-    (this->*(action_queue.top().func))(time);
-  }
-  time += t_cs/2;
-  std::cout << "time " << time << "ms: Simulator ended for FCFS [Q empty]\n";    
-  
-  std::ofstream simout("simout.txt", std::ios_base::app);
-  simout << "Algorithm FCFS\n";
-  stats(simout);
-  simout << "\n";
-}
-
-// ----------------------------------------------------------------------
-//                   Round Robin (from rr.cpp)
-// ----------------------------------------------------------------------
-void OpSys::process_arrive_rr( int current_time )
-{
-  Process* p = unarrived.top();
-  unarrived.pop();
-  ready_rr.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " arrived; added to ready queue ";
-    print_queue(ready_rr);
-  }
-}
-
-void OpSys::start_cpu_use_rr( int current_time )
-{
-  Process* p = switching_to_run;
-  switching_to_run = NULL;
-  running = p;
-  p->last_cpu_burst_start = current_time;
-  p->waitBurst(current_time);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    if (p->time_remaining < p->getT())
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " started using the CPU for remaining " << p->time_remaining 
-                << "ms of " << p->getT() << "ms burst ";
-    else
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " started using the CPU for " << p->getT() << "ms burst ";
-    print_queue(ready_rr);
-  }
-}
-
-void OpSys::switch_out_cpu_rr( int current_time )
-{
-  Process* p = running;
-  running = NULL;
-  p->time_remaining = 0;
-  p->update(current_time);
-  int bursts_left = p->getCpuBurstsLeft();
-  if (bursts_left == 0)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " terminated ";
-    unfinished.erase(p);
-    print_queue(ready_rr);
-  }
-  else
-  {
-    p->waitBurst(current_time + t_cs/2);
-    if (!TRUNCATE || current_time < TRUNC_TIME)
-    {
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " completed a CPU burst; " << bursts_left 
-                << " burst" << (bursts_left == 1 ? "" : "s") << " to go ";
-      print_queue(ready_rr);
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " switching out of CPU; blocking on I/O until time " 
-                << p->burstCompletionTime() << "ms ";
-      print_queue(ready_rr);
-    }
-    waiting.push(p);
-  }
-  switching_to_io = p;
-  p->last_switch_time = current_time;
-}
-
-void OpSys::complete_io_rr( int current_time )
-{
-  Process* p = waiting.top();
-  waiting.pop();
-  p->update(current_time);
-  ready_rr.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " completed I/O; added to ready queue ";
-    print_queue(ready_rr);
-  }
-  p->finishBurst();
-}
-
-void OpSys::ts_expiration_rr( int current_time )
-{
-  Process* p = running;
-  if (ready_rr.empty())
-  {
-    p->time_remaining -= tslice;
-    if (!TRUNCATE || current_time < TRUNC_TIME)
-      std::cout << "time " << current_time 
-                << "ms: Time slice expired; no preemption because ready queue is empty [Q empty]\n";
-    p->last_cpu_burst_start = current_time;
-    return;
-  }
-
-  p->preempt(tslice);
-  running = NULL;
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time 
-              << "ms: Time slice expired; preempting process " <<  p->id 
-              << " with " << p->time_remaining << "ms remaining ";
-    print_queue(ready_rr);
-  }  
-  switching_to_ready = p;
-  p->last_switch_time = current_time;
-}
-
-void OpSys::start_switch_in_rr(int current_time)
-{
-  switching_to_run = ready_rr.front();
-  ready_rr.pop();
-  switching_to_run->last_switch_time = current_time;
-}
-
-void OpSys::finish_preempt_switch_out_rr(int current_time)
-{
-  ready_rr.push(switching_to_ready);
-  switching_to_ready = NULL;
-  if (current_time == 0) return;
-}
-
-void OpSys::round_robin()
-{
-  switching_to_run = NULL;
-  switching_to_io = NULL;
-  switching_to_ready = NULL;
-  time = 0;
-  std::cout << "time " << time << "ms: Simulator started for RR [Q empty]\n";
-  while (!unfinished.empty())
-  {
-    std::priority_queue<Action, std::vector<Action>, CompAction> action_queue;
-
-    if (switching_to_io != NULL)
-      action_queue.push({ switching_to_io->last_switch_time + t_cs/2, &OpSys::finish_io_switch_out, 0 });
- 
-    if (running == NULL)
-    {
-      if (switching_to_ready != NULL)
-        action_queue.push({ switching_to_ready->last_switch_time + t_cs/2, &OpSys::finish_preempt_switch_out_rr, 0 });
-      else
-      {
-        if (switching_to_run == NULL)
-        {
-          if (switching_to_io == NULL && !ready_rr.empty())
-            action_queue.push({ time, &OpSys::start_switch_in_rr, 10 });
+// Print a standard FIFO queue of Process pointers.
+void printQueue(const std::queue<Process*>& readyQueue) {
+    std::queue<Process*> q = readyQueue;
+    std::cout << "[Q";
+    if (!q.empty()) {
+        while (!q.empty()) {
+            std::cout << " " << q.front()->id;
+            q.pop();
         }
-        else
-          action_queue.push({ switching_to_run->last_switch_time + t_cs/2, &OpSys::start_cpu_use_rr, 2 });
-      }
+    } else {
+        std::cout << " empty";
     }
-    else
-    {
-      if ((running->last_cpu_burst_start + tslice) < running->burstCompletionTime())
-        action_queue.push({ (running->last_cpu_burst_start + tslice), &OpSys::ts_expiration_rr, 1 });
-      else
-        action_queue.push({ running->burstCompletionTime(), &OpSys::switch_out_cpu_rr, 1 });
-    }
-
-    if (!waiting.empty())
-      action_queue.push({ waiting.top()->burstCompletionTime(), &OpSys::complete_io_rr, 3 });
-
-    if (!unarrived.empty())
-      action_queue.push({ unarrived.top()->arrival_time, &OpSys::process_arrive_rr, 4 });
-
-    time = action_queue.top().time;
-    (this->*(action_queue.top().func))(time);
-  }
-  time += t_cs/2;
-  std::cout << "time " << time << "ms: Simulator ended for RR [Q empty]\n";    
-  
-  std::ofstream simout("simout.txt", std::ios_base::app);
-  simout << "Algorithm RR\n";
-  stats(simout);
-  stats_rr(simout);
+    std::cout << "]\n";
 }
 
-// ----------------------------------------------------------------------
-//                   Shortest Job First (from sjf.cpp)
-// ----------------------------------------------------------------------
-void OpSys::process_arrive_sjf( int current_time )
-{
-  Process* p = unarrived.top();
-  unarrived.pop();
-  ready_sjf.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) arrived; added to ready queue ";
-    print_priority_queue(ready_sjf);
-  }
-}
-
-void OpSys::start_cpu_use_sjf( int current_time )
-{
-  Process* p = switching_to_run;
-  switching_to_run = NULL;
-  running = p;
-  p->waitBurst(current_time);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) started using the CPU for " 
-              << p->getT() << "ms burst ";
-    print_priority_queue(ready_sjf);
-  }
-}
-
-void OpSys::switch_out_cpu_sjf( int current_time )
-{
-  Process* p = running;
-  running = NULL;
-  int old_tau = p->getTau();
-  p->update(current_time);
-  int bursts_left = p->getCpuBurstsLeft();
-  if (bursts_left == 0)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id << " terminated ";
-    unfinished.erase(p);
-    print_priority_queue(ready_sjf);
-  }
-  else
-  {
-    p->waitBurst(current_time + t_cs/2);
-    if (!TRUNCATE || current_time < TRUNC_TIME)
-    {
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " (tau " << old_tau << "ms) completed a CPU burst; " << bursts_left 
-                << " burst" << (bursts_left == 1 ? "" : "s") << " to go ";
-      print_priority_queue(ready_sjf);
-      std::cout << "time " << current_time << "ms: Recalculated tau for process " << p->id 
-                << ": old tau " << old_tau << "ms ==> new tau " << p->getTau() << "ms ";
-      print_priority_queue(ready_sjf);
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " switching out of CPU; blocking on I/O until time " 
-                << p->burstCompletionTime() << "ms ";
-      print_priority_queue(ready_sjf);
-    }
-    waiting.push(p);
-  }
-  switching_to_io = p;
-  p->last_switch_time = current_time;
-}
-
-void OpSys::complete_io_sjf( int current_time )
-{
-  Process* p = waiting.top();
-  waiting.pop();
-  p->update(current_time);
-  ready_sjf.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) completed I/O; added to ready queue ";
-    print_priority_queue(ready_sjf);
-  }
-  p->finishBurst();
-}
-
-void OpSys::start_switch_in_sjf(int current_time)
-{
-  switching_to_run = ready_sjf.top();
-  ready_sjf.pop();
-  switching_to_run->last_switch_time = current_time;
-}
-
-void OpSys::shortest_job_first()
-{
-  switching_to_run = NULL;
-  switching_to_io = NULL;
-  switching_to_ready = NULL;
-  time = 0;
-  std::cout << "time " << time << "ms: Simulator started for SJF [Q empty]\n";
-  while (!unfinished.empty())
-  {
-    std::priority_queue<Action, std::vector<Action>, CompAction> action_queue;
-
-    if (switching_to_io != NULL)
-      action_queue.push({ switching_to_io->last_switch_time + t_cs/2, &OpSys::finish_io_switch_out, 0 });
-
-    if (running == NULL)
-    {
-      if (switching_to_run == NULL)
-      {
-        if (switching_to_io == NULL && !ready_sjf.empty())
-          action_queue.push({ time, &OpSys::start_switch_in_sjf, 10 });
-      }
-      else
-        action_queue.push({ switching_to_run->last_switch_time + t_cs/2, &OpSys::start_cpu_use_sjf, 2 });
-    }
-    else
-      action_queue.push({ running->burstCompletionTime(), &OpSys::switch_out_cpu_sjf, 1 });
-
-    if (!waiting.empty())
-      action_queue.push({ waiting.top()->burstCompletionTime(), &OpSys::complete_io_sjf, 3 });
-
-    if (!unarrived.empty())
-      action_queue.push({ unarrived.top()->arrival_time, &OpSys::process_arrive_sjf, 4 });
-
-    time = action_queue.top().time;
-    (this->*(action_queue.top().func))(time);
-  }
-  time += t_cs/2;
-  std::cout << "time " << time << "ms: Simulator ended for SJF [Q empty]\n";
-
-  std::ofstream simout("simout.txt", std::ios_base::app);
-  simout << "Algorithm SJF\n";
-  stats(simout);
-  simout << "\n";  
-}
-
-// ----------------------------------------------------------------------
-//                   Shortest Remaining Time (from srt.cpp)
-// ----------------------------------------------------------------------
-bool should_preempt(int current_time, Process* cur, Process* top)
-{ 
-  return (cur->tau_remaining - current_time + cur->last_cpu_burst_start) > top->tau_remaining;
-}
-
-void OpSys::process_arrive_srt( int current_time )
-{
-  Process* p = unarrived.top();
-  unarrived.pop();
-  ready_srt.push(p);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) arrived; added to ready queue ";
-    print_priority_queue(ready_srt);
-  }
-}
-
-void OpSys::start_cpu_use_srt( int current_time )
-{
-  Process* p = switching_to_run;
-  switching_to_run = NULL;
-  running = p;
-  p->last_cpu_burst_start = current_time;
-  p->waitBurst(current_time);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    if (p->time_remaining < p->getT())
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " (tau " << p->getTau() << "ms) started using the CPU for remaining " 
-                << p->time_remaining << "ms of " << p->getT() << "ms burst ";
-    else
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " (tau " << p->getTau() << "ms) started using the CPU for " 
-                << p->getT() << "ms burst ";
-    print_priority_queue(ready_srt);
-  }
-}
-
-void OpSys::switch_out_cpu_srt( int current_time )
-{
-  Process* p = running;
-  running = NULL;
-  int old_tau = p->getTau();
-  p->update(current_time);
-  int bursts_left = p->getCpuBurstsLeft();
-  if (bursts_left == 0)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id << " terminated ";
-    unfinished.erase(p);
-    print_priority_queue(ready_srt);
-  }
-  else
-  {
-    p->waitBurst(current_time + t_cs/2);
-    if (!TRUNCATE || current_time < TRUNC_TIME)
-    {
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " (tau " << old_tau << "ms) completed a CPU burst; " << bursts_left 
-                << " burst" << (bursts_left == 1 ? "" : "s") << " to go ";
-      print_priority_queue(ready_srt);
-      std::cout << "time " << current_time << "ms: Recalculated tau for process " << p->id 
-                << ": old tau " << old_tau << "ms ==> new tau " << p->getTau() << "ms ";
-      print_priority_queue(ready_srt);
-      std::cout << "time " << current_time << "ms: Process " << p->id 
-                << " switching out of CPU; blocking on I/O until time " 
-                << p->burstCompletionTime() << "ms ";
-      print_priority_queue(ready_srt);
-    }
-    waiting.push(p);
-  }
-  switching_to_io = p;
-  p->last_switch_time = current_time;
-}
-
-void OpSys::complete_io_srt( int current_time )
-{
-  Process* p = waiting.top();
-  waiting.pop();
-  p->update(current_time);
-  ready_srt.push(p);
-  if (running != NULL)
-  {
-    if (should_preempt(current_time, running, p))
-    {
-      running->preempt(current_time - running->last_cpu_burst_start);
-      if (!TRUNCATE || current_time < TRUNC_TIME)
-      {
-        std::cout << "time " << current_time << "ms: Process " << p->id 
-                  << " (tau " << p->getTau() << "ms) completed I/O; preempting " 
-                  << running->id << " (predicted remaining time " << running->tau_remaining << "ms) ";
-        print_priority_queue(ready_srt);
-      }
-      switching_to_ready = running;
-      running->last_switch_time = current_time;
-      running = NULL;
-      p->finishBurst();
-      return;
-    }
-  }
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) completed I/O; added to ready queue ";
-    print_priority_queue(ready_srt);
-  }
-  p->finishBurst();
-}
-
-void OpSys::start_switch_in_srt(int current_time)
-{
-  switching_to_run = ready_srt.top();
-  ready_srt.pop();
-  switching_to_run->last_switch_time = current_time;
-}
-
-void OpSys::finish_preempt_switch_out_srt(int current_time)
-{
-  ready_srt.push(switching_to_ready);
-  switching_to_ready = NULL;
-  if (current_time == 0) return;
-}
-
-void OpSys::preempt_now_srt(int current_time)
-{
-  Process* p = ready_srt.top();
-  running->preempt(current_time - running->last_cpu_burst_start);
-  if (!TRUNCATE || current_time < TRUNC_TIME)
-  {
-    std::cout << "time " << current_time << "ms: Process " << p->id 
-              << " (tau " << p->getTau() << "ms) will preempt " << running->id << " ";
-    print_priority_queue(ready_srt);
-  }
-  switching_to_ready = running;
-  running->last_switch_time = current_time;
-  running = NULL;
-}
-
-void OpSys::shortest_remaining_time()
-{
-  switching_to_run = NULL;
-  switching_to_io = NULL;
-  switching_to_ready = NULL;
-  time = 0;
-  std::cout << "time " << time << "ms: Simulator started for SRT [Q empty]\n";
-  while (!unfinished.empty())
-  {
-    std::priority_queue<Action, std::vector<Action>, CompAction> action_queue;
-
-    if (switching_to_io != NULL)
-      action_queue.push({ switching_to_io->last_switch_time + t_cs/2, &OpSys::finish_io_switch_out, 0 });
- 
-    if (running == NULL)
-    {
-      if (switching_to_ready != NULL)
-        action_queue.push({ switching_to_ready->last_switch_time + t_cs/2, &OpSys::finish_preempt_switch_out_srt, 0 });
-      else
-      {
-        if (switching_to_run == NULL)
-        {
-          if (switching_to_io == NULL && !ready_srt.empty())
-            action_queue.push({ time, &OpSys::start_switch_in_srt, 10 });
+// Template function to print a priority queue of Process pointers.
+template<typename T>
+void printPriorityQueue(T readyQueue) {
+    std::cout << "[Q";
+    if (readyQueue.empty())
+        std::cout << " empty";
+    else {
+        while (!readyQueue.empty()) {
+            std::cout << " " << readyQueue.top()->id;
+            readyQueue.pop();
         }
+    }
+    std::cout << "]\n";
+}
+
+// -----------------------------------------------------------------------------
+// FCFS (First-Come First-Served) Functions
+// -----------------------------------------------------------------------------
+
+// Arrival function
+void OpSys::processArrivalFCFS(int currentTime) {
+    Process* proc = unarrived.top();
+    unarrived.pop();
+    readyFCFS.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " arrived; added to ready queue ";
+        printQueue(readyFCFS);
+    }
+}
+
+// Switch-in function
+void OpSys::startSwitchInFCFS(int currentTime) {
+    switchingToRun = readyFCFS.front();
+    readyFCFS.pop();
+    switchingToRun->lastSwitchTime = currentTime;
+}
+
+// Start CPU usage
+void OpSys::startCpuUsageFCFS(int currentTime) {
+    Process* proc = switchingToRun;
+    switchingToRun = nullptr;
+    running = proc;
+    proc->waitBurst(currentTime);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " started using the CPU for " << proc->getT() << "ms burst ";
+        printQueue(readyFCFS);
+    }
+}
+
+// Switch-out CPU function
+void OpSys::switchOutCpuFCFS(int currentTime) {
+    Process* proc = running;
+    running = nullptr;
+    proc->updateProcess(currentTime);
+    int burstsLeft = proc->getCpuBurstsLeft();
+    if (burstsLeft == 0) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " terminated ";
+        finished.push_back(proc);
+        unfinished.erase(proc);
+        printQueue(readyFCFS);
+    } else {
+        proc->waitBurst(currentTime + contextSwitchTime / 2);
+        if (!TRUNCATE || currentTime < TRUNC_TIME) {
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " completed a CPU burst; " << burstsLeft 
+                      << " burst" << (burstsLeft == 1 ? "" : "s") << " to go ";
+            printQueue(readyFCFS);
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " switching out of CPU; blocking on I/O until time " 
+                      << proc->burstCompletionTime() << "ms ";
+            printQueue(readyFCFS);
+        }
+        waiting.push(proc);
+    }
+    switchingToIO = proc;
+    proc->lastSwitchTime = currentTime;
+}
+
+// Complete I/O function
+void OpSys::completeIOFCFS(int currentTime) {
+    Process* proc = waiting.top();
+    waiting.pop();
+    proc->updateProcess(currentTime);
+    readyFCFS.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " completed I/O; added to ready queue ";
+        printQueue(readyFCFS);
+    }
+    proc->finishBurst();
+}
+
+// Run scheduler
+void OpSys::runFCFSScheduler() {
+    switchingToRun = nullptr;
+    switchingToIO = nullptr;
+    switchingToReady = nullptr;
+    time = 0;
+    std::cout << "time " << time << "ms: Simulator started for FCFS [Q empty]\n";
+    
+    while (!unfinished.empty()) {
+        std::priority_queue<Action, std::vector<Action>, CompAction> actionQueue;
+        if (switchingToIO != nullptr)
+            actionQueue.push({ switchingToIO->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishIOSwitchOut, 0 });
+ 
+        if (running == nullptr) {
+            if (switchingToRun == nullptr) {
+                if (switchingToIO == nullptr && !readyFCFS.empty())
+                    actionQueue.push({ time, &OpSys::startSwitchInFCFS, 10 });
+            } else {
+                actionQueue.push({ switchingToRun->lastSwitchTime + contextSwitchTime / 2, &OpSys::startCpuUsageFCFS, 2 });
+            }
+        } else {
+            actionQueue.push({ running->burstCompletionTime(), &OpSys::switchOutCpuFCFS, 1 });
+        }
+        if (!waiting.empty())
+            actionQueue.push({ waiting.top()->burstCompletionTime(), &OpSys::completeIOFCFS, 3 });
+        if (!unarrived.empty())
+            actionQueue.push({ unarrived.top()->arrival_time, &OpSys::processArrivalFCFS, 4 });
+        time = actionQueue.top().time;
+        (this->*(actionQueue.top().func))(time);
+    }
+    time += contextSwitchTime / 2;
+    std::cout << "time " << time << "ms: Simulator ended for FCFS [Q empty]\n";    
+    
+    std::ofstream simout("simout.txt", std::ios_base::app);
+    simout << "Algorithm FCFS\n";
+    printStats(simout);
+    simout << "\n";
+}
+
+// -----------------------------------------------------------------------------
+// Round Robin (RR) Functions
+// -----------------------------------------------------------------------------
+
+// Arrival function
+void OpSys::processArrivalRR(int currentTime) {
+    Process* proc = unarrived.top();
+    unarrived.pop();
+    readyRR.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " arrived; added to ready queue ";
+        printQueue(readyRR);
+    }
+}
+
+// Switch-in function
+void OpSys::startSwitchInRR(int currentTime) {
+    switchingToRun = readyRR.front();
+    readyRR.pop();
+    switchingToRun->lastSwitchTime = currentTime;
+}
+
+// Start CPU usage
+void OpSys::startCpuUsageRR(int currentTime) {
+    Process* proc = switchingToRun;
+    switchingToRun = nullptr;
+    running = proc;
+    proc->lastCpuBurstStart = currentTime;
+    proc->waitBurst(currentTime);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        if (proc->time_remaining < proc->getT())
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " started using the CPU for remaining " << proc->time_remaining 
+                      << "ms of " << proc->getT() << "ms burst ";
         else
-          action_queue.push({ switching_to_run->last_switch_time + t_cs/2, &OpSys::start_cpu_use_srt, 2 });
-      }
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " started using the CPU for " << proc->getT() << "ms burst ";
+        printQueue(readyRR);
     }
-    else
-    {
-      action_queue.push({ running->burstCompletionTime(), &OpSys::switch_out_cpu_srt, 1 });
-      if (!ready_srt.empty() && should_preempt(time, running, ready_srt.top()))
-        action_queue.push({ time, &OpSys::preempt_now_srt, -1 });
-    }
-
-    if (!waiting.empty())
-      action_queue.push({ waiting.top()->burstCompletionTime(), &OpSys::complete_io_srt, 3 });
-
-    if (!unarrived.empty())
-      action_queue.push({ unarrived.top()->arrival_time, &OpSys::process_arrive_srt, 4 });
-
-    time = action_queue.top().time;
-    (this->*(action_queue.top().func))(time);
-  }
-  time += t_cs/2;
-  std::cout << "time " << time << "ms: Simulator ended for SRT [Q empty]\n";   
-  
-  std::ofstream simout("simout.txt", std::ios_base::app);
-  simout << "Algorithm SRT\n";
-  stats(simout);
-  simout << "\n";
 }
 
-// ----------------------------------------------------------------------
-//                   Opsys (from opsys.cpp)
-// ----------------------------------------------------------------------
-void print_queue(const std::queue<Process*> &ready)
-{
-  std::queue<Process*> q = ready;
-  std::cout << "[Q";
-  if (!q.empty())
-  {
-    while (!q.empty())
-    {
-      std::cout << " " << q.front()->id;
-      q.pop();
+// Time-slice expiration
+void OpSys::timeSliceExpirationRR(int currentTime) {
+    Process* proc = running;
+    if (readyRR.empty()) {
+        proc->time_remaining -= timeSlice;
+        if (!TRUNCATE || currentTime < TRUNC_TIME)
+            std::cout << "time " << currentTime << "ms: Time slice expired; no preemption because ready queue is empty [Q empty]\n";
+        proc->lastCpuBurstStart = currentTime;
+        return;
     }
-  }
-  else
-    std::cout << " empty";
-  std::cout << "]\n";
+    proc->preempt(timeSlice);
+    running = nullptr;
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Time slice expired; preempting process " <<  proc->id 
+                  << " with " << proc->time_remaining << "ms remaining ";
+        printQueue(readyRR);
+    }
+    switchingToReady = proc;
+    proc->lastSwitchTime = currentTime;
 }
 
-void OpSys::stats(std::ofstream& simout)
-{
-  int switches_cpu = 0, switches_io = 0;
-  int preempts_cpu = 0, preempts_io = 0;
-  int overall_cpu_time = 0;
-  int cpu_turn = 0, io_turn = 0; 
-  int cpu_cpu_bursts = 0, io_cpu_bursts = 0;
-  int total_cpu_wait = 0, total_io_wait = 0;
-  
-  for (Process* p : finished)
-  {
-    overall_cpu_time += p->total_cpu_time;
-    if (p->is_cpu_bound)
-    {
-      switches_cpu += p->num_switches;
-      preempts_cpu += p->num_preempts;
-      cpu_turn += p->total_turnaround;
-      cpu_cpu_bursts += p->num_cpu_bursts;
-      total_cpu_wait += p->total_turnaround - p->getTotalCpuTime() - (p->num_preempts * t_cs);
+// Switch-out CPU function
+void OpSys::switchOutCpuRR(int currentTime) {
+    Process* proc = running;
+    running = nullptr;
+    proc->time_remaining = 0;
+    proc->updateProcess(currentTime);
+    int burstsLeft = proc->getCpuBurstsLeft();
+    if (burstsLeft == 0) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " terminated ";
+        unfinished.erase(proc);
+        printQueue(readyRR);
+    } else {
+        proc->waitBurst(currentTime + contextSwitchTime / 2);
+        if (!TRUNCATE || currentTime < TRUNC_TIME) {
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " completed a CPU burst; " << burstsLeft 
+                      << " burst" << (burstsLeft == 1 ? "" : "s") << " to go ";
+            printQueue(readyRR);
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " switching out of CPU; blocking on I/O until time " 
+                      << proc->burstCompletionTime() << "ms ";
+            printQueue(readyRR);
+        }
+        waiting.push(proc);
     }
-    else
-    {
-      switches_io += p->num_switches;
-      preempts_io += p->num_preempts;
-      io_turn += p->total_turnaround;
-      io_cpu_bursts += p->num_cpu_bursts;
-      total_io_wait += p->total_turnaround - p->getTotalCpuTime() - (p->num_preempts * t_cs);
+    switchingToIO = proc;
+    proc->lastSwitchTime = currentTime;
+}
+
+// Finish preempt switch-out
+void OpSys::finishPreemptSwitchOutRR(int currentTime) {
+    readyRR.push(switchingToReady);
+    switchingToReady = nullptr;
+    if (currentTime == 0) return;
+}
+
+// Complete I/O function
+void OpSys::completeIORR(int currentTime) {
+    Process* proc = waiting.top();
+    waiting.pop();
+    proc->updateProcess(currentTime);
+    readyRR.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " completed I/O; added to ready queue ";
+        printQueue(readyRR);
+    }
+    proc->finishBurst();
+}
+
+// Run scheduler
+void OpSys::runRoundRobinScheduler() {
+    switchingToRun = nullptr;
+    switchingToIO = nullptr;
+    switchingToReady = nullptr;
+    time = 0;
+    std::cout << "time " << time << "ms: Simulator started for RR [Q empty]\n";
+    
+    while (!unfinished.empty()) {
+        std::priority_queue<Action, std::vector<Action>, CompAction> actionQueue;
+        if (switchingToIO != nullptr)
+            actionQueue.push({ switchingToIO->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishIOSwitchOut, 0 });
+ 
+        if (running == nullptr) {
+            if (switchingToReady != nullptr)
+                actionQueue.push({ switchingToReady->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishPreemptSwitchOutRR, 0 });
+            else {
+                if (switchingToRun == nullptr) {
+                    if (switchingToIO == nullptr && !readyRR.empty())
+                        actionQueue.push({ time, &OpSys::startSwitchInRR, 10 });
+                } else {
+                    actionQueue.push({ switchingToRun->lastSwitchTime + contextSwitchTime / 2, &OpSys::startCpuUsageRR, 2 });
+                }
+            }
+        } else {
+            if ((running->lastCpuBurstStart + timeSlice) < running->burstCompletionTime())
+                actionQueue.push({ (running->lastCpuBurstStart + timeSlice), &OpSys::timeSliceExpirationRR, 1 });
+            else
+                actionQueue.push({ running->burstCompletionTime(), &OpSys::switchOutCpuRR, 1 });
+        }
+        if (!waiting.empty())
+            actionQueue.push({ waiting.top()->burstCompletionTime(), &OpSys::completeIORR, 3 });
+        if (!unarrived.empty())
+            actionQueue.push({ unarrived.top()->arrival_time, &OpSys::processArrivalRR, 4 });
+        time = actionQueue.top().time;
+        (this->*(actionQueue.top().func))(time);
+    }
+    time += contextSwitchTime / 2;
+    std::cout << "time " << time << "ms: Simulator ended for RR [Q empty]\n";    
+    
+    std::ofstream simout("simout.txt", std::ios_base::app);
+    simout << "Algorithm RR\n";
+    printStats(simout);
+    printRRStats(simout);
+}
+
+// -----------------------------------------------------------------------------
+// Shortest Job First (SJF) Functions
+// -----------------------------------------------------------------------------
+
+// Arrival function
+void OpSys::processArrivalSJF(int currentTime) {
+    Process* proc = unarrived.top();
+    unarrived.pop();
+    readySJF.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) arrived; added to ready queue ";
+        printPriorityQueue(readySJF);
+    }
+}
+
+// Switch-in function
+void OpSys::startSwitchInSJF(int currentTime) {
+    switchingToRun = readySJF.top();
+    readySJF.pop();
+    switchingToRun->lastSwitchTime = currentTime;
+}
+
+// Start CPU usage
+void OpSys::startCpuUsageSJF(int currentTime) {
+    Process* proc = switchingToRun;
+    switchingToRun = nullptr;
+    running = proc;
+    proc->waitBurst(currentTime);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) started using the CPU for " 
+                  << proc->getT() << "ms burst ";
+        printPriorityQueue(readySJF);
+    }
+}
+
+// Switch-out CPU function
+void OpSys::switchOutCpuSJF(int currentTime) {
+    Process* proc = running;
+    running = nullptr;
+    int oldTau = proc->getTau();
+    proc->updateProcess(currentTime);
+    int burstsLeft = proc->getCpuBurstsLeft();
+    if (burstsLeft == 0) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id << " terminated ";
+        unfinished.erase(proc);
+        printPriorityQueue(readySJF);
+    } else {
+        proc->waitBurst(currentTime + contextSwitchTime / 2);
+        if (!TRUNCATE || currentTime < TRUNC_TIME) {
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " (tau " << oldTau << "ms) completed a CPU burst; " << burstsLeft 
+                      << " burst" << (burstsLeft == 1 ? "" : "s") << " to go ";
+            printPriorityQueue(readySJF);
+            std::cout << "time " << currentTime << "ms: Recalculated tau for process " << proc->id 
+                      << ": old tau " << oldTau << "ms ==> new tau " << proc->getTau() << "ms ";
+            printPriorityQueue(readySJF);
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " switching out of CPU; blocking on I/O until time " 
+                      << proc->burstCompletionTime() << "ms ";
+            printPriorityQueue(readySJF);
+        }
+        waiting.push(proc);
+    }
+    switchingToIO = proc;
+    proc->lastSwitchTime = currentTime;
+}
+
+// Complete I/O function
+void OpSys::completeIOSJF(int currentTime) {
+    Process* proc = waiting.top();
+    waiting.pop();
+    proc->updateProcess(currentTime);
+    readySJF.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) completed I/O; added to ready queue ";
+        printPriorityQueue(readySJF);
+    }
+    proc->finishBurst();
+}
+
+// Run scheduler
+void OpSys::runSJFScheduler() {
+    switchingToRun = nullptr;
+    switchingToIO = nullptr;
+    switchingToReady = nullptr;
+    time = 0;
+    std::cout << "time " << time << "ms: Simulator started for SJF [Q empty]\n";
+    
+    while (!unfinished.empty()) {
+        std::priority_queue<Action, std::vector<Action>, CompAction> actionQueue;
+        if (switchingToIO != nullptr)
+            actionQueue.push({ switchingToIO->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishIOSwitchOut, 0 });
+ 
+        if (running == nullptr) {
+            if (switchingToRun == nullptr) {
+                if (switchingToIO == nullptr && !readySJF.empty())
+                    actionQueue.push({ time, &OpSys::startSwitchInSJF, 10 });
+            } else {
+                actionQueue.push({ switchingToRun->lastSwitchTime + contextSwitchTime / 2, &OpSys::startCpuUsageSJF, 2 });
+            }
+        } else {
+            actionQueue.push({ running->burstCompletionTime(), &OpSys::switchOutCpuSJF, 1 });
+        }
+        if (!waiting.empty())
+            actionQueue.push({ waiting.top()->burstCompletionTime(), &OpSys::completeIOSJF, 3 });
+        if (!unarrived.empty())
+            actionQueue.push({ unarrived.top()->arrival_time, &OpSys::processArrivalSJF, 4 });
+        time = actionQueue.top().time;
+        (this->*(actionQueue.top().func))(time);
+    }
+    time += contextSwitchTime / 2;
+    std::cout << "time " << time << "ms: Simulator ended for SJF [Q empty]\n";
+    
+    std::ofstream simout("simout.txt", std::ios_base::app);
+    simout << "Algorithm SJF\n";
+    printStats(simout);
+    simout << "\n";  
+}
+
+// -----------------------------------------------------------------------------
+// Shortest Remaining Time (SRT) Functions
+// -----------------------------------------------------------------------------
+
+bool OpSys::shouldPreempt(int currentTime, Process* cur, Process* top) { 
+    // This function returns true if the current process should be preempted by the process on top of the SRT queue.
+    return (cur->tau_remaining - (currentTime - cur->lastCpuBurstStart)) > top->tau_remaining;
+}
+
+// Arrival function
+void OpSys::processArrivalSRT(int currentTime) {
+    Process* proc = unarrived.top();
+    unarrived.pop();
+    readySRT.push(proc);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) arrived; added to ready queue ";
+        printPriorityQueue(readySRT);
+    }
+}
+
+// Switch-in function
+void OpSys::startSwitchInSRT(int currentTime) {
+    switchingToRun = readySRT.top();
+    readySRT.pop();
+    switchingToRun->lastSwitchTime = currentTime;
+}
+
+// Start CPU usage
+void OpSys::startCpuUsageSRT(int currentTime) {
+    Process* proc = switchingToRun;
+    switchingToRun = nullptr;
+    running = proc;
+    proc->lastCpuBurstStart = currentTime;
+    proc->waitBurst(currentTime);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        if (proc->time_remaining < proc->getT())
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " (tau " << proc->getTau() << "ms) started using the CPU for remaining " 
+                      << proc->time_remaining << "ms of " << proc->getT() << "ms burst ";
+        else
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " (tau " << proc->getTau() << "ms) started using the CPU for " 
+                      << proc->getT() << "ms burst ";
+        printPriorityQueue(readySRT);
+    }
+}
+
+// Switch-out CPU function
+void OpSys::switchOutCpuSRT(int currentTime) {
+    Process* proc = running;
+    running = nullptr;
+    int oldTau = proc->getTau();
+    proc->updateProcess(currentTime);
+    int burstsLeft = proc->getCpuBurstsLeft();
+    if (burstsLeft == 0) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id << " terminated ";
+        unfinished.erase(proc);
+        printPriorityQueue(readySRT);
+    } else {
+        proc->waitBurst(currentTime + contextSwitchTime / 2);
+        if (!TRUNCATE || currentTime < TRUNC_TIME) {
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " (tau " << oldTau << "ms) completed a CPU burst; " << burstsLeft 
+                      << " burst" << (burstsLeft == 1 ? "" : "s") << " to go ";
+            printPriorityQueue(readySRT);
+            std::cout << "time " << currentTime << "ms: Recalculated tau for process " << proc->id 
+                      << ": old tau " << oldTau << "ms ==> new tau " << proc->getTau() << "ms ";
+            printPriorityQueue(readySRT);
+            std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                      << " switching out of CPU; blocking on I/O until time " 
+                      << proc->burstCompletionTime() << "ms ";
+            printPriorityQueue(readySRT);
+        }
+        waiting.push(proc);
+    }
+    switchingToIO = proc;
+    proc->lastSwitchTime = currentTime;
+}
+
+// Complete I/O function
+void OpSys::completeIOSRT(int currentTime) {
+    Process* proc = waiting.top();
+    waiting.pop();
+    proc->updateProcess(currentTime);
+    readySRT.push(proc);
+    if (running != nullptr) {
+        if (shouldPreempt(currentTime, running, readySRT.top())) {
+            running->preempt(currentTime - running->lastCpuBurstStart);
+            if (!TRUNCATE || currentTime < TRUNC_TIME) {
+                std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                          << " (tau " << proc->getTau() << "ms) completed I/O; preempting " 
+                          << running->id << " (predicted remaining time " << running->tau_remaining << "ms) ";
+                printPriorityQueue(readySRT);
+            }
+            switchingToReady = running;
+            running->lastSwitchTime = currentTime;
+            running = nullptr;
+            proc->finishBurst();
+            return;
+        }
+    }
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) completed I/O; added to ready queue ";
+        printPriorityQueue(readySRT);
+    }
+    proc->finishBurst();
+}
+
+// Finish preempt switch-out
+void OpSys::finishPreemptSwitchOutSRT(int currentTime) {
+    readySRT.push(switchingToReady);
+    switchingToReady = nullptr;
+    if (currentTime == 0) return;
+}
+
+// Preempt now
+void OpSys::preemptNowSRT(int currentTime) {
+    Process* proc = readySRT.top();
+    running->preempt(currentTime - running->lastCpuBurstStart);
+    if (!TRUNCATE || currentTime < TRUNC_TIME) {
+        std::cout << "time " << currentTime << "ms: Process " << proc->id 
+                  << " (tau " << proc->getTau() << "ms) will preempt " << running->id << " ";
+        printPriorityQueue(readySRT);
+    }
+    switchingToReady = running;
+    running->lastSwitchTime = currentTime;
+    running = nullptr;
+}
+
+// Run scheduler
+void OpSys::runSRTScheduler() {
+    switchingToRun = nullptr;
+    switchingToIO = nullptr;
+    switchingToReady = nullptr;
+    time = 0;
+    std::cout << "time " << time << "ms: Simulator started for SRT [Q empty]\n";
+    
+    while (!unfinished.empty()) {
+        std::priority_queue<Action, std::vector<Action>, CompAction> actionQueue;
+        if (switchingToIO != nullptr)
+            actionQueue.push({ switchingToIO->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishIOSwitchOut, 0 });
+ 
+        if (running == nullptr) {
+            if (switchingToReady != nullptr)
+                actionQueue.push({ switchingToReady->lastSwitchTime + contextSwitchTime / 2, &OpSys::finishPreemptSwitchOutSRT, 0 });
+            else {
+                if (switchingToRun == nullptr) {
+                    if (switchingToIO == nullptr && !readySRT.empty())
+                        actionQueue.push({ time, &OpSys::startSwitchInSRT, 10 });
+                } else {
+                    actionQueue.push({ switchingToRun->lastSwitchTime + contextSwitchTime / 2, &OpSys::startCpuUsageSRT, 2 });
+                }
+            }
+        } else {
+            actionQueue.push({ running->burstCompletionTime(), &OpSys::switchOutCpuSRT, 1 });
+            if (!readySRT.empty() && shouldPreempt(time, running, readySRT.top()))
+                actionQueue.push({ time, &OpSys::preemptNowSRT, -1 });
+        }
+        if (!waiting.empty())
+            actionQueue.push({ waiting.top()->burstCompletionTime(), &OpSys::completeIOSRT, 3 });
+        if (!unarrived.empty())
+            actionQueue.push({ unarrived.top()->arrival_time, &OpSys::processArrivalSRT, 4 });
+        time = actionQueue.top().time;
+        (this->*(actionQueue.top().func))(time);
+    }
+    time += contextSwitchTime / 2;
+    std::cout << "time " << time << "ms: Simulator ended for SRT [Q empty]\n";   
+    
+    std::ofstream simout("simout.txt", std::ios_base::app);
+    simout << "Algorithm SRT\n";
+    printStats(simout);
+    simout << "\n";
+}
+
+// -----------------------------------------------------------------------------
+// Statistics Functions
+// -----------------------------------------------------------------------------
+
+void OpSys::printStats(std::ofstream& simout) {
+    int cpuSwitches = 0, ioSwitches = 0;
+    int cpuPreempts = 0, ioPreempts = 0;
+    int overallCpuTime = 0;
+    int cpuTurnaround = 0, ioTurnaround = 0; 
+    int cpuBursts = 0, ioBursts = 0;
+    int totalCpuWait = 0, totalIoWait = 0;
+    
+    for (Process* proc : finished) {
+        overallCpuTime += proc->total_cpu_time;
+        if (proc->is_cpu_bound) {
+            cpuSwitches += proc->num_switches;
+            cpuPreempts += proc->num_preempts;
+            cpuTurnaround += proc->total_turnaround;
+            cpuBursts += proc->num_cpu_bursts;
+            totalCpuWait += proc->total_turnaround - proc->getTotalCpuTime() - (proc->num_preempts * contextSwitchTime);
+        } else {
+            ioSwitches += proc->num_switches;
+            ioPreempts += proc->num_preempts;
+            ioTurnaround += proc->total_turnaround;
+            ioBursts += proc->num_cpu_bursts;
+            totalIoWait += proc->total_turnaround - proc->getTotalCpuTime() - (proc->num_preempts * contextSwitchTime);
+        }  
+    }
+    double utilization = std::ceil((overallCpuTime / (double)time) * 100000) / 1000;
+    double avgCpuTurn = std::ceil(((double)cpuTurnaround / cpuBursts) * 1000) / 1000 + (contextSwitchTime / 2);
+    double avgIoTurn = std::ceil(((double)ioTurnaround / ioBursts) * 1000) / 1000 + (contextSwitchTime / 2);
+    double avgTurn = std::ceil(((double)(ioTurnaround + cpuTurnaround) / (ioBursts + cpuBursts)) * 1000) / 1000 + (contextSwitchTime / 2);
+    double avgWaitCpu = std::ceil(((double)totalCpuWait / cpuBursts) * 1000) / 1000 - (contextSwitchTime / 2);
+    double avgWaitIo = std::ceil(((double)totalIoWait / ioBursts) * 1000) / 1000 - (contextSwitchTime / 2);
+    double avgWait = std::ceil(((double)(totalCpuWait + totalIoWait) / (ioBursts + cpuBursts)) * 1000) / 1000 - (contextSwitchTime / 2);
+ 
+    simout << "-- CPU utilization: " << std::fixed << std::setprecision(3) << utilization << "%\n";
+    simout << "-- CPU-bound average wait time: " << std::setprecision(3) << avgWaitCpu << " ms\n";
+    simout << "-- I/O-bound average wait time: " << std::setprecision(3) << avgWaitIo << " ms\n";
+    simout << "-- overall average wait time: " << std::setprecision(3) << avgWait << " ms\n";  
+    simout << "-- CPU-bound average turnaround time: " << std::setprecision(3) << avgCpuTurn << " ms\n";
+    simout << "-- I/O-bound average turnaround time: " << std::setprecision(3) << avgIoTurn << " ms\n";
+    simout << "-- overall average turnaround time: " << avgTurn << " ms\n";
+    simout << "-- CPU-bound number of context switches: " << cpuSwitches << "\n";
+    simout << "-- I/O-bound number of context switches: " << ioSwitches << "\n";
+    simout << "-- overall number of context switches: " << (ioSwitches + cpuSwitches) << "\n";
+    simout << "-- CPU-bound number of preemptions: " << cpuPreempts << "\n";
+    simout << "-- I/O-bound number of preemptions: " << ioPreempts << "\n";
+    simout << "-- overall number of preemptions: " << (ioPreempts + cpuPreempts) << "\n";
+}
+
+void OpSys::printRRStats(std::ofstream& simout) {
+    int cpuWithinTS = 0, ioWithinTS = 0;
+    int cpuBursts = 0, ioBursts = 0;
+    for (Process* proc : finished) {
+        int burstsWithin = 0;
+        for (int i = 0; i < proc->num_total_bursts; i += 2) {
+            if (proc->burst_times[i] <= timeSlice)
+                burstsWithin++;
+        }
+        if (proc->is_cpu_bound) { 
+            cpuWithinTS += burstsWithin; 
+            cpuBursts += proc->num_cpu_bursts; 
+        } else { 
+            ioWithinTS += burstsWithin; 
+            ioBursts += proc->num_cpu_bursts;
+        }
     }  
-  }
-  double utilization = std::ceil((overall_cpu_time / (double)time) * 100000) / 1000;
-  double avg_cpu_turn = std::ceil(((double)cpu_turn / cpu_cpu_bursts) * 1000) / 1000 + (t_cs/2);
-  double avg_io_turn = std::ceil(((double)io_turn / io_cpu_bursts) * 1000) / 1000 + (t_cs/2);
-  double avg_turn = std::ceil(((double)(io_turn+cpu_turn) / (io_cpu_bursts+cpu_cpu_bursts)) * 1000) / 1000 + (t_cs/2);
-  double avg_wait_cpu = std::ceil(((double)total_cpu_wait / cpu_cpu_bursts) * 1000) / 1000 - (t_cs/2);
-  double avg_wait_io = std::ceil(((double)total_io_wait / io_cpu_bursts) * 1000) / 1000 - (t_cs/2);
-  double avg_wait = std::ceil(((double)(total_cpu_wait+total_io_wait) / (io_cpu_bursts+cpu_cpu_bursts)) * 1000) / 1000 - (t_cs/2);
- 
-  simout << "-- CPU utilization: " << std::fixed << std::setprecision(3) << utilization << "%\n";
-  simout << "-- CPU-bound average wait time: " << std::setprecision(3) << avg_wait_cpu << " ms\n";
-  simout << "-- I/O-bound average wait time: " << std::setprecision(3) << avg_wait_io << " ms\n";
-  simout << "-- overall average wait time: " << std::setprecision(3) << avg_wait << " ms\n";  
-  simout << "-- CPU-bound average turnaround time: " << std::setprecision(3) << avg_cpu_turn << " ms\n";
-  simout << "-- I/O-bound average turnaround time: " << std::setprecision(3) << avg_io_turn << " ms\n";
-  simout << "-- overall average turnaround time: " << avg_turn << " ms\n";
-  simout << "-- CPU-bound number of context switches: " << switches_cpu << "\n";
-  simout << "-- I/O-bound number of context switches: " << switches_io << "\n";
-  simout << "-- overall number of context switches: " << switches_io + switches_cpu << "\n";
-  simout << "-- CPU-bound number of preemptions: " << preempts_cpu << "\n";
-  simout << "-- I/O-bound number of preemptions: " << preempts_io << "\n";
-  simout << "-- overall number of preemptions: " << preempts_io + preempts_cpu << "\n";
+    double cpuPercentage = std::ceil(((double)cpuWithinTS / cpuBursts) * 100000) / 1000;
+    double ioPercentage = std::ceil(((double)ioWithinTS / ioBursts) * 100000) / 1000;
+    double overallPercentage = std::ceil(((double)(ioWithinTS + cpuWithinTS) / (ioBursts + cpuBursts)) * 100000) / 1000;
+    simout << "-- CPU-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << cpuPercentage << "%\n";
+    simout << "-- I/O-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << ioPercentage << "%\n";
+    simout << "-- overall percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << overallPercentage << "%\n";
 }
 
-void OpSys::stats_rr(std::ofstream& simout)
-{
-  int cpu_within_ts = 0, io_within_ts = 0;
-  int cpu_cpu_bursts = 0, io_cpu_bursts = 0;
+// -----------------------------------------------------------------------------
+// Process Member Functions
+// -----------------------------------------------------------------------------
 
-  for (Process* p : finished)
-  {
-    int bursts_within = 0;
-    for (int i = 0; i < p->num_total_bursts; i += 2)
-    {
-      if (p->burst_times[i] <= tslice) bursts_within++;
+void Process::updateProcess(int currentTime) {
+    burst_index++;
+    if (onCPUBurst()) {
+        prev_t = t;
+        t = burst_times[burst_index];
+        time_remaining = t;
+        total_cpu_time += t;
+        num_switches++;
+        start_turnaround = currentTime;
+    } else { // On I/O burst
+        prev_tau = tau;
+        tau = std::ceil((alpha * burst_times[burst_index - 1]) + ((1.0 - alpha) * prev_tau));
+        tau_remaining = tau;
+        if (burst_index < num_total_bursts)
+            time_remaining = burst_times[burst_index];
+        total_turnaround += (currentTime - start_turnaround);
     }
-    if (p->is_cpu_bound)
-    { 
-      cpu_within_ts += bursts_within; 
-      cpu_cpu_bursts += p->num_cpu_bursts; 
-    }
-    else
-    { 
-      io_within_ts += bursts_within; 
-      io_cpu_bursts += p->num_cpu_bursts;
-    }
-  }  
-
-  double cpu = std::ceil(((double)cpu_within_ts / cpu_cpu_bursts) * 100000) / 1000;
-  double io = std::ceil(((double)io_within_ts / io_cpu_bursts) * 100000) / 1000;
-  double all = std::ceil(((double)(io_within_ts + cpu_within_ts) / (io_cpu_bursts + cpu_cpu_bursts)) * 100000) / 1000;
-
-  simout << "-- CPU-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << cpu << "%\n";
-  simout << "-- I/O-bound percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << io << "%\n";
-  simout << "-- overall percentage of CPU bursts completed within one time slice: " << std::setprecision(3) << all << "%\n";
 }
 
-// ----------------------------------------------------------------------
-//                   Process (from process.cpp)
-// ----------------------------------------------------------------------
-void Process::update( int current_time ) 
-{
-  burst_index++;
-  
-  if (onCPUBurst())
-  {
+void Process::preempt(int elapsedTime) {
+    num_preempts++;
+    num_switches++;  
+    time_remaining -= elapsedTime;
+    tau_remaining -= elapsedTime;
+}
+
+void Process::reset() {
+    burst_index = 0;
+    burst_completion_time = 0;
+    t = burst_times[0];
     prev_t = t;
-    t = burst_times[burst_index];
-    time_remaining = t;
-    total_cpu_time += t;
-    num_switches++;
-    start_turnaround = current_time;
-  }
-  else // on I/O burst
-  {
+    tau = tau_0;
     prev_tau = tau;
-    tau = std::ceil((alpha * burst_times[burst_index-1]) + ((1.0 - alpha) * prev_tau));
+    time_remaining = t;
     tau_remaining = tau;
-    if (burst_index < num_total_bursts)
-      time_remaining = burst_times[burst_index];
-    total_turnaround += (current_time - start_turnaround);
-  }
+    lastCpuBurstStart = 0;
+    num_switches = 1;
+    num_preempts = 0;
+    total_cpu_time = t;
+    start_turnaround = arrival_time;
+    total_turnaround = 0;
 }
 
-void Process::preempt( int elapsed_time )
-{
-  num_preempts++;
-  num_switches++;  
-  time_remaining -= elapsed_time;
-  tau_remaining -= elapsed_time;
+int Process::getTotalCpuTime() {
+    int total_cpu = 0;
+    for (int i = 0; i < num_total_bursts; i += 2)
+        total_cpu += burst_times[i];
+    return total_cpu;
 }
 
-void Process::reset()
-{
-  burst_index = 0;
-  burst_completion_time = 0;
-  t = burst_times[0];
-  prev_t = t;
-  tau = tau_0;
-  prev_tau = tau;
-  time_remaining = t;
-  tau_remaining = tau;
-  last_cpu_burst_start = 0;
-  num_switches = 1;
-  num_preempts = 0;
-  total_cpu_time = t;
-  start_turnaround = arrival_time;
-  total_turnaround = 0;
-}
+// -----------------------------------------------------------------------------
+// Random Exponential Function and Global Variables
+// -----------------------------------------------------------------------------
 
-int Process::getTotalCpuTime()
-{
-  int total_cpu = 0;
-  for (int i = 0; i < num_total_bursts; i += 2)
-    total_cpu += burst_times[i];
-  return total_cpu;
-}
-
-// ----------------------------------------------------------------------
-//                   Main (from main.cpp)
-// ----------------------------------------------------------------------
-int n;
-int n_cpu;
+int numProcesses;
+int numCpuBound;
 int seed;
-double lambda;
-int ceiling;
-int tcs;
+double arrivalLambda;
+int maxBurstCeiling;
+int contextSwitchTime;
 double alpha;
-int tslice;
+int timeSlice;
 
-double next_exp()
-{
+double nextExp() {
     int found = 0;
     double x;
-    while (!found)
-    {
+    while (!found) {
         double r = drand48();
-        x = -log(r) / lambda;
-        if (x <= ceiling)
+        x = -log(r) / arrivalLambda;
+        if (x <= maxBurstCeiling)
             found = 1;
     }
     return x;
 }
 
-int main(int argc, char* argv[])
-{
-    if (argc != 9)
-    {
+// -----------------------------------------------------------------------------
+// Main Function
+// -----------------------------------------------------------------------------
+
+int main(int argc, char* argv[]) {
+    if (argc != 9) {
         std::cerr << "ERROR: Invalid arg count\n";
         exit(1);
     }
-
-    n = atoi(argv[1]);          
-    n_cpu = atoi(argv[2]);      
+    numProcesses = atoi(argv[1]);          
+    numCpuBound = atoi(argv[2]);      
     seed = atoi(argv[3]);       
-    lambda = atof(argv[4]);     
-    ceiling = atoi(argv[5]);
-    tcs = atoi(argv[6]);                 
+    arrivalLambda = atof(argv[4]);     
+    maxBurstCeiling = atoi(argv[5]);
+    contextSwitchTime = atoi(argv[6]);                 
     alpha = atof(argv[7]);
-    tslice = atoi(argv[8]);
-
-    if (n <= 0 || n > 260)
-    {
+    timeSlice = atoi(argv[8]);
+    if (numProcesses <= 0 || numProcesses > 260) {
         std::cerr << "ERROR: Invalid process simulation count\n";
         exit(1);
     }
-    if (lambda == 0)
-    {
+    if (arrivalLambda == 0) {
         std::cerr << "ERROR: Lambda cannot be zero\n";
         exit(1);
     }
-    if (tslice <= 0 || tcs <= 0)
-    {
+    if (timeSlice <= 0 || contextSwitchTime <= 0) {
         std::cerr << "ERROR: Time values must be positive\n";
         exit(1);
     }
-
     std::cout << "<<< -- process set (n=" << argv[1] << ") with " << argv[2]
-              << (n_cpu != 1 ? " CPU-bound processes\n" : " CPU-bound process\n")
+              << (numCpuBound != 1 ? " CPU-bound processes\n" : " CPU-bound process\n")
               << "<<< -- seed=" << argv[3] << "; lambda=" << std::fixed << std::setprecision(6) 
-              << lambda << "; bound=" << argv[5] << "\n";
-
+              << arrivalLambda << "; bound=" << argv[5] << "\n";
     srand48(seed);
-
     std::list<Process*> processes;
-    float cpu_cpu_total = 0, io_cpu_total = 0, cpu_io_total = 0, io_io_total = 0;
-    float num_cpu_cpu = 0, num_io_cpu = 0, num_cpu_io = 0, num_io_io = 0;
-
-    for (int i = 0; i < n; i++)
-    {
-        bool is_cpu_bound = (i < n_cpu);
-        int p_arrival_time = floor(next_exp());
-        int num_cpu = std::ceil(drand48() * 32);
-        int num_io = num_cpu - 1;
-        int num_total = num_cpu + num_io;
-        int* burst_times = new int[num_total];
-
-        for (int j = 0; j < num_total; j++)
-        {
-            int x = std::ceil(next_exp());
-            if (is_cpu_bound)
-            {
-                if (j % 2 == 0)
-                {
+    float cpuCpuTotal = 0, ioCpuTotal = 0, cpuIoTotal = 0, ioIoTotal = 0;
+    float numCpuCpu = 0, numIoCpu = 0, numCpuIo = 0, numIoIo = 0;
+    for (int i = 0; i < numProcesses; i++) {
+        bool isCpuBound = (i < numCpuBound);
+        int processArrivalTime = floor(nextExp());
+        int numCPUBursts = std::ceil(drand48() * 32);
+        int numIOBursts = numCPUBursts - 1;
+        int totalBursts = numCPUBursts + numIOBursts;
+        int* burstTimes = new int[totalBursts];
+        for (int j = 0; j < totalBursts; j++) {
+            int x = std::ceil(nextExp());
+            if (isCpuBound) {
+                if (j % 2 == 0) {
                     x = x * 4;
-                    cpu_cpu_total += x; num_cpu_cpu++;
+                    cpuCpuTotal += x; numCpuCpu++;
+                } else {
+                    cpuIoTotal += x; numCpuIo++;
                 }
-                else
-                {
-                    cpu_io_total += x; num_cpu_io++;
-                }
-            }
-            else
-            {
-                if (j % 2 == 1)
-                {
+            } else {
+                if (j % 2 == 1) {
                     x *= 8;
-                    io_io_total += x; num_io_io++;
-                }
-                else
-                {
-                    io_cpu_total += x; num_io_cpu++;
+                    ioIoTotal += x; numIoIo++;
+                } else {
+                    ioCpuTotal += x; numIoCpu++;
                 }
             }
-            burst_times[j] = x;
+            burstTimes[j] = x;
         }
-
-        Process* p = new Process();
-        p->id = new char[4];
-        std::snprintf(p->id, 4, "%c%d", 'A' + (i / 10), i % 10);
-        p->tau_0 = std::ceil(1.0 / lambda);
-        p->tau = p->tau_0;
-        p->alpha = alpha;
-        p->t = burst_times[0];
-        p->is_cpu_bound = is_cpu_bound;
-        p->num_cpu_bursts = num_cpu;
-        p->num_total_bursts = num_total;
-        p->burst_times = burst_times;
-        p->arrival_time = p_arrival_time;
-        p->start_turnaround = p_arrival_time;
-        p->time_remaining = p->t;
-        p->total_cpu_time = p->t;
-        p->tau_remaining = p->tau;
-
-        processes.push_back(p);
+        Process* proc = new Process();
+        proc->id = new char[4];
+        std::snprintf(proc->id, 4, "%c%d", 'A' + (i / 10), i % 10);
+        proc->tau_0 = std::ceil(1.0 / arrivalLambda);
+        proc->tau = proc->tau_0;
+        proc->alpha = alpha;
+        proc->t = burstTimes[0];
+        proc->is_cpu_bound = isCpuBound;
+        proc->num_cpu_bursts = numCPUBursts;
+        proc->num_total_bursts = totalBursts;
+        proc->burst_times = burstTimes;
+        proc->arrival_time = processArrivalTime;
+        proc->start_turnaround = processArrivalTime;
+        proc->time_remaining = proc->t;
+        proc->total_cpu_time = proc->t;
+        proc->tau_remaining = proc->tau;
+        processes.push_back(proc);
     }
-
-    float cpu_cpu_avg = (num_cpu_cpu != 0) ? (cpu_cpu_total / num_cpu_cpu) : 0;
-    float cpu_io_avg = (num_cpu_io != 0) ? (cpu_io_total / num_cpu_io) : 0;
-    float cpu_avg = ((num_cpu_cpu + num_io_cpu) != 0) ? std::ceil(1000 * (cpu_cpu_total + io_cpu_total) / (num_cpu_cpu + num_io_cpu)) / 1000 : 0;
-    float io_cpu_avg = (num_io_cpu != 0) ? (io_cpu_total / num_io_cpu) : 0;
-    float io_io_avg = (num_io_io != 0) ? (io_io_total / num_io_io) : 0;
-    float io_avg = ((num_cpu_io + num_io_io) != 0) ? std::ceil(1000 * (cpu_io_total + io_io_total) / (num_cpu_io + num_io_io)) / 1000 : 0;
-
-    for (Process* p : processes)
-    {
-        if (p->is_cpu_bound)
+    float cpuCpuAvg = (numCpuCpu != 0) ? (cpuCpuTotal / numCpuCpu) : 0;
+    float cpuIoAvg = (numCpuIo != 0) ? (cpuIoTotal / numCpuIo) : 0;
+    float cpuAvg = ((numCpuCpu + numIoCpu) != 0) ? std::ceil(1000 * (cpuCpuTotal + ioCpuTotal) / (numCpuCpu + numIoCpu)) / 1000 : 0;
+    float ioCpuAvg = (numIoCpu != 0) ? (ioCpuTotal / numIoCpu) : 0;
+    float ioIoAvg = (numIoIo != 0) ? (ioIoTotal / numIoIo) : 0;
+    float ioAvg = ((numCpuIo + numIoIo) != 0) ? std::ceil(1000 * (cpuIoTotal + ioIoTotal) / (numCpuIo + numIoIo)) / 1000 : 0;
+    for (Process* proc : processes) {
+        if (proc->is_cpu_bound)
             std::cout << "\nCPU-bound";
         else
             std::cout << "\nI/O-bound";
-        std::cout << " process " << p->id << ": arrival time " << p->arrival_time 
-                  << "ms; " << p->num_cpu_bursts 
-                  << (p->num_cpu_bursts != 1 ? " CPU bursts\n" : " CPU burst\n");
-        for (int j = 0; j < p->num_cpu_bursts * 2 - 1; ++j)
-        {
+        std::cout << " process " << proc->id << ": arrival time " << proc->arrival_time 
+                  << "ms; " << proc->num_cpu_bursts
+                  << (proc->num_cpu_bursts != 1 ? " CPU bursts\n" : " CPU burst\n");
+        for (int j = 0; j < proc->num_cpu_bursts * 2 - 1; ++j) {
             if (j % 2 == 0)
-                std::cout << "==> CPU burst " << p->burst_times[j] << "ms";
+                std::cout << "==> CPU burst " << proc->burst_times[j] << "ms";
             else
-                std::cout << " ==> I/O burst " << p->burst_times[j] << "ms\n";
+                std::cout << " ==> I/O burst " << proc->burst_times[j] << "ms\n";
         }
         std::cout << "\n";
     }
-
     std::ofstream simout("simout.txt");
-    simout << "-- number of processes: " << n << "\n";
-    simout << "-- number of CPU-bound processes: " << n_cpu << "\n";
-    simout << "-- number of I/O-bound processes: " << (n - n_cpu) << "\n";
+    simout << "-- number of processes: " << numProcesses << "\n";
+    simout << "-- number of CPU-bound processes: " << numCpuBound << "\n";
+    simout << "-- number of I/O-bound processes: " << (numProcesses - numCpuBound) << "\n";
     simout << "-- CPU-bound average CPU burst time: " 
-           << std::fixed << std::setprecision(3) << std::ceil(1000 * cpu_cpu_avg) / 1000 << " ms\n";
+           << std::fixed << std::setprecision(3) << std::ceil(1000 * cpuCpuAvg) / 1000 << " ms\n";
     simout << "-- I/O-bound average CPU burst time: " 
-           << std::fixed << std::setprecision(3) << std::ceil(1000 * io_cpu_avg) / 1000 << " ms\n";
+           << std::fixed << std::setprecision(3) << std::ceil(1000 * ioCpuAvg) / 1000 << " ms\n";
     simout << "-- overall average CPU burst time: " 
-           << std::fixed << std::setprecision(3) << cpu_avg << " ms\n";
+           << std::fixed << std::setprecision(3) << cpuAvg << " ms\n";
     simout << "-- CPU-bound average I/O burst time: " 
-           << std::fixed << std::setprecision(3) << std::ceil(1000 * cpu_io_avg) / 1000 << " ms\n";
+           << std::fixed << std::setprecision(3) << std::ceil(1000 * cpuIoAvg) / 1000 << " ms\n";
     simout << "-- I/O-bound average I/O burst time: " 
-           << std::fixed << std::setprecision(3) << std::ceil(1000 * io_io_avg) / 1000 << " ms\n";
+           << std::fixed << std::setprecision(3) << std::ceil(1000 * ioIoAvg) / 1000 << " ms\n";
     simout << "-- overall average I/O burst time: " 
-           << std::fixed << std::setprecision(3) << io_avg << " ms\n\n";
+           << std::fixed << std::setprecision(3) << ioAvg << " ms\n\n";
     simout.close();
-
-    std::cout << "<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << tcs 
+    std::cout << "<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << contextSwitchTime 
               << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha 
-              << "; t_slice=" << tslice << "ms\n";
+              << "; t_slice=" << timeSlice << "ms\n";
     OpSys* simulation = new OpSys();
-    simulation->t_cs = tcs;
-    simulation->tslice = tslice;
-    for (Process* p : processes)
-      simulation->unfinished.insert(p); 
-    for (Process* p : processes)
-      simulation->unarrived.push(p); 
-    simulation->first_come_first_served();
-
+    simulation->contextSwitchTime = contextSwitchTime;
+    simulation->timeSlice = timeSlice;
+    for (Process* proc : processes)
+        simulation->unfinished.insert(proc); 
+    for (Process* proc : processes)
+        simulation->unarrived.push(proc); 
+    simulation->runFCFSScheduler();
     std::cout << "\n";
-    for (Process* p : processes)
-    {
-      p->reset();
-      simulation->unfinished.insert(p);
-      simulation->unarrived.push(p);
+    for (Process* proc : processes) {
+        proc->reset();
+        simulation->unfinished.insert(proc);
+        simulation->unarrived.push(proc);
     }
-    simulation->shortest_job_first();
+    simulation->runSJFScheduler();
     std::cout << "\n";
-    for (Process* p : processes)
-    {
-      p->reset();
-      simulation->unfinished.insert(p);
-      simulation->unarrived.push(p);
+    for (Process* proc : processes) {
+        proc->reset();
+        simulation->unfinished.insert(proc);
+        simulation->unarrived.push(proc);
     }
-    simulation->shortest_remaining_time();
+    simulation->runSRTScheduler();
     std::cout << "\n";
-    for (Process* p : processes)
-    {
-      p->reset();
-      simulation->unfinished.insert(p);
-      simulation->unarrived.push(p);
+    for (Process* proc : processes) {
+        proc->reset();
+        simulation->unfinished.insert(proc);
+        simulation->unarrived.push(proc);
     }
-    simulation->round_robin();
-
+    simulation->runRoundRobinScheduler();
     delete simulation;
-    for (Process* p : processes)
-    {
-      delete [] p->id;
-      delete [] p->burst_times;
-      delete p;
+    for (Process* proc : processes) {
+        delete [] proc->id;
+        delete [] proc->burst_times;
+        delete proc;
     }
-
     return 0;
 }
