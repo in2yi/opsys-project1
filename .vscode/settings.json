@@ -90,6 +90,8 @@
     "math.h": "c",
     "stdlib.h": "c",
     "__locale": "c",
-    "iomanip": "cpp"
-  }
+    "iomanip": "cpp",
+    "queue": "cpp"
+  },
+  "docwriter.style": "JSDoc"
 }
