@@ -1,0 +1,72 @@
+-- number of processes: 3
+-- number of CPU-bound processes: 1
+-- number of I/O-bound processes: 2
+-- CPU-bound average CPU burst time: 1600.640 ms
+-- I/O-bound average CPU burst time: 247.300 ms
+-- overall average CPU burst time: 999.156 ms
+-- CPU-bound average I/O burst time: 419.084 ms
+-- I/O-bound average I/O burst time: 3277.778 ms
+-- overall average I/O burst time: 1644.239 ms
+
+Algorithm FCFS
+-- CPU utilization: 68.121%
+-- CPU-bound average wait time: 66.280 ms
+-- I/O-bound average wait time: 677.200 ms
+-- overall average wait time: 337.800 ms
+-- CPU-bound average turnaround time: 1670.920 ms
+-- I/O-bound average turnaround time: 928.500 ms
+-- overall average turnaround time: 1340.956 ms
+-- CPU-bound number of context switches: 25
+-- I/O-bound number of context switches: 20
+-- overall number of context switches: 45
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+
+Algorithm SJF
+-- CPU utilization: 68.121%
+-- CPU-bound average wait time: 66.280 ms
+-- I/O-bound average wait time: 667.900 ms
+-- overall average wait time: 333.667 ms
+-- CPU-bound average turnaround time: 1670.920 ms
+-- I/O-bound average turnaround time: 919.200 ms
+-- overall average turnaround time: 1336.823 ms
+-- CPU-bound number of context switches: 25
+-- I/O-bound number of context switches: 20
+-- overall number of context switches: 45
+-- CPU-bound number of preemptions: 0
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 0
+
+Algorithm SRT
+-- CPU utilization: 73.958%
+-- CPU-bound average wait time: 116.600 ms
+-- I/O-bound average wait time: 324.650 ms
+-- overall average wait time: 209.067 ms
+-- CPU-bound average turnaround time: 1722.840 ms
+-- I/O-bound average turnaround time: 575.950 ms
+-- overall average turnaround time: 1213.112 ms
+-- CPU-bound number of context switches: 35
+-- I/O-bound number of context switches: 20
+-- overall number of context switches: 55
+-- CPU-bound number of preemptions: 10
+-- I/O-bound number of preemptions: 0
+-- overall number of preemptions: 10
+
+Algorithm RR
+-- CPU utilization: 72.806%
+-- CPU-bound average wait time: 173.280 ms
+-- I/O-bound average wait time: 240.550 ms
+-- overall average wait time: 203.178 ms
+-- CPU-bound average turnaround time: 1781.120 ms
+-- I/O-bound average turnaround time: 493.650 ms
+-- overall average turnaround time: 1208.912 ms
+-- CPU-bound number of context switches: 45
+-- I/O-bound number of context switches: 29
+-- overall number of context switches: 74
+-- CPU-bound number of preemptions: 20
+-- I/O-bound number of preemptions: 9
+-- overall number of preemptions: 29
+-- CPU-bound percentage of CPU bursts completed within one time slice: 12.000%
+-- I/O-bound percentage of CPU bursts completed within one time slice: 70.000%
+-- overall percentage of CPU bursts completed within one time slice: 37.778%

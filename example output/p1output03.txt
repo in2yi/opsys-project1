@@ -1,0 +1,446 @@
+<<< -- process set (n=8) with 6 CPU-bound processes
+<<< -- seed=768; lambda=0.001000; bound=1024
+
+CPU-bound process A0: arrival time 54ms; 29 CPU bursts:
+==> CPU burst 3764ms ==> I/O burst 686ms
+==> CPU burst 1732ms ==> I/O burst 212ms
+==> CPU burst 844ms ==> I/O burst 493ms
+==> CPU burst 168ms ==> I/O burst 372ms
+==> CPU burst 736ms ==> I/O burst 141ms
+==> CPU burst 1372ms ==> I/O burst 554ms
+==> CPU burst 1808ms ==> I/O burst 149ms
+==> CPU burst 1808ms ==> I/O burst 266ms
+==> CPU burst 848ms ==> I/O burst 75ms
+==> CPU burst 3384ms ==> I/O burst 17ms
+==> CPU burst 104ms ==> I/O burst 428ms
+==> CPU burst 3924ms ==> I/O burst 667ms
+==> CPU burst 3388ms ==> I/O burst 94ms
+==> CPU burst 100ms ==> I/O burst 487ms
+==> CPU burst 3868ms ==> I/O burst 112ms
+==> CPU burst 1516ms ==> I/O burst 311ms
+==> CPU burst 1260ms ==> I/O burst 413ms
+==> CPU burst 728ms ==> I/O burst 773ms
+==> CPU burst 2568ms ==> I/O burst 348ms
+==> CPU burst 1220ms ==> I/O burst 883ms
+==> CPU burst 2296ms ==> I/O burst 664ms
+==> CPU burst 3268ms ==> I/O burst 923ms
+==> CPU burst 3468ms ==> I/O burst 288ms
+==> CPU burst 2392ms ==> I/O burst 108ms
+==> CPU burst 1976ms ==> I/O burst 564ms
+==> CPU burst 312ms ==> I/O burst 545ms
+==> CPU burst 1440ms ==> I/O burst 136ms
+==> CPU burst 3052ms ==> I/O burst 558ms
+==> CPU burst 2044ms
+
+CPU-bound process A1: arrival time 56ms; 31 CPU bursts:
+==> CPU burst 2828ms ==> I/O burst 322ms
+==> CPU burst 1444ms ==> I/O burst 167ms
+==> CPU burst 2476ms ==> I/O burst 417ms
+==> CPU burst 2256ms ==> I/O burst 290ms
+==> CPU burst 1188ms ==> I/O burst 777ms
+==> CPU burst 2812ms ==> I/O burst 863ms
+==> CPU burst 368ms ==> I/O burst 173ms
+==> CPU burst 200ms ==> I/O burst 607ms
+==> CPU burst 1044ms ==> I/O burst 592ms
+==> CPU burst 940ms ==> I/O burst 445ms
+==> CPU burst 660ms ==> I/O burst 28ms
+==> CPU burst 2196ms ==> I/O burst 976ms
+==> CPU burst 36ms ==> I/O burst 637ms
+==> CPU burst 4060ms ==> I/O burst 90ms
+==> CPU burst 3904ms ==> I/O burst 534ms
+==> CPU burst 1488ms ==> I/O burst 404ms
+==> CPU burst 1080ms ==> I/O burst 51ms
+==> CPU burst 916ms ==> I/O burst 71ms
+==> CPU burst 3724ms ==> I/O burst 111ms
+==> CPU burst 1764ms ==> I/O burst 282ms
+==> CPU burst 860ms ==> I/O burst 99ms
+==> CPU burst 2700ms ==> I/O burst 767ms
+==> CPU burst 100ms ==> I/O burst 586ms
+==> CPU burst 420ms ==> I/O burst 709ms
+==> CPU burst 3504ms ==> I/O burst 671ms
+==> CPU burst 3504ms ==> I/O burst 334ms
+==> CPU burst 2352ms ==> I/O burst 251ms
+==> CPU burst 2652ms ==> I/O burst 768ms
+==> CPU burst 3812ms ==> I/O burst 527ms
+==> CPU burst 2288ms ==> I/O burst 166ms
+==> CPU burst 388ms
+
+CPU-bound process A2: arrival time 456ms; 9 CPU bursts:
+==> CPU burst 1896ms ==> I/O burst 618ms
+==> CPU burst 2940ms ==> I/O burst 439ms
+==> CPU burst 248ms ==> I/O burst 464ms
+==> CPU burst 952ms ==> I/O burst 774ms
+==> CPU burst 1796ms ==> I/O burst 411ms
+==> CPU burst 2200ms ==> I/O burst 15ms
+==> CPU burst 1512ms ==> I/O burst 787ms
+==> CPU burst 1764ms ==> I/O burst 84ms
+==> CPU burst 1768ms
+
+CPU-bound process A3: arrival time 758ms; 16 CPU bursts:
+==> CPU burst 548ms ==> I/O burst 799ms
+==> CPU burst 428ms ==> I/O burst 938ms
+==> CPU burst 1432ms ==> I/O burst 317ms
+==> CPU burst 3896ms ==> I/O burst 124ms
+==> CPU burst 804ms ==> I/O burst 65ms
+==> CPU burst 2564ms ==> I/O burst 380ms
+==> CPU burst 3416ms ==> I/O burst 889ms
+==> CPU burst 3756ms ==> I/O burst 651ms
+==> CPU burst 3864ms ==> I/O burst 423ms
+==> CPU burst 1144ms ==> I/O burst 150ms
+==> CPU burst 492ms ==> I/O burst 368ms
+==> CPU burst 2704ms ==> I/O burst 176ms
+==> CPU burst 316ms ==> I/O burst 668ms
+==> CPU burst 204ms ==> I/O burst 332ms
+==> CPU burst 2328ms ==> I/O burst 896ms
+==> CPU burst 2760ms
+
+CPU-bound process A4: arrival time 346ms; 2 CPU bursts:
+==> CPU burst 2428ms ==> I/O burst 509ms
+==> CPU burst 2532ms
+
+CPU-bound process A5: arrival time 115ms; 1 CPU burst:
+==> CPU burst 564ms
+
+I/O-bound process A6: arrival time 242ms; 27 CPU bursts:
+==> CPU burst 761ms ==> I/O burst 2264ms
+==> CPU burst 903ms ==> I/O burst 2048ms
+==> CPU burst 303ms ==> I/O burst 7328ms
+==> CPU burst 194ms ==> I/O burst 6896ms
+==> CPU burst 203ms ==> I/O burst 2800ms
+==> CPU burst 603ms ==> I/O burst 3064ms
+==> CPU burst 95ms ==> I/O burst 1056ms
+==> CPU burst 556ms ==> I/O burst 3376ms
+==> CPU burst 599ms ==> I/O burst 560ms
+==> CPU burst 58ms ==> I/O burst 2056ms
+==> CPU burst 455ms ==> I/O burst 3112ms
+==> CPU burst 826ms ==> I/O burst 2640ms
+==> CPU burst 587ms ==> I/O burst 1920ms
+==> CPU burst 292ms ==> I/O burst 4480ms
+==> CPU burst 572ms ==> I/O burst 520ms
+==> CPU burst 494ms ==> I/O burst 7088ms
+==> CPU burst 19ms ==> I/O burst 4216ms
+==> CPU burst 355ms ==> I/O burst 2968ms
+==> CPU burst 81ms ==> I/O burst 7440ms
+==> CPU burst 25ms ==> I/O burst 944ms
+==> CPU burst 445ms ==> I/O burst 3208ms
+==> CPU burst 35ms ==> I/O burst 3040ms
+==> CPU burst 245ms ==> I/O burst 7240ms
+==> CPU burst 732ms ==> I/O burst 2064ms
+==> CPU burst 850ms ==> I/O burst 6800ms
+==> CPU burst 667ms ==> I/O burst 248ms
+==> CPU burst 370ms
+
+I/O-bound process A7: arrival time 357ms; 21 CPU bursts:
+==> CPU burst 297ms ==> I/O burst 7864ms
+==> CPU burst 598ms ==> I/O burst 2456ms
+==> CPU burst 721ms ==> I/O burst 2736ms
+==> CPU burst 641ms ==> I/O burst 1944ms
+==> CPU burst 128ms ==> I/O burst 6168ms
+==> CPU burst 277ms ==> I/O burst 848ms
+==> CPU burst 984ms ==> I/O burst 5208ms
+==> CPU burst 961ms ==> I/O burst 3432ms
+==> CPU burst 587ms ==> I/O burst 792ms
+==> CPU burst 33ms ==> I/O burst 2584ms
+==> CPU burst 875ms ==> I/O burst 2352ms
+==> CPU burst 53ms ==> I/O burst 240ms
+==> CPU burst 64ms ==> I/O burst 3496ms
+==> CPU burst 264ms ==> I/O burst 1048ms
+==> CPU burst 228ms ==> I/O burst 2264ms
+==> CPU burst 37ms ==> I/O burst 5496ms
+==> CPU burst 364ms ==> I/O burst 4312ms
+==> CPU burst 278ms ==> I/O burst 2512ms
+==> CPU burst 23ms ==> I/O burst 7880ms
+==> CPU burst 188ms ==> I/O burst 3896ms
+==> CPU burst 214ms
+
+<<< PROJECT SIMULATIONS
+<<< -- t_cs=6ms; alpha=0.95; t_slice=128ms
+time 0ms: Simulator started for FCFS [Q empty]
+time 54ms: Process A0 arrived; added to ready queue [Q A0]
+time 56ms: Process A1 arrived; added to ready queue [Q A1]
+time 57ms: Process A0 started using the CPU for 3764ms burst [Q A1]
+time 115ms: Process A5 arrived; added to ready queue [Q A1 A5]
+time 242ms: Process A6 arrived; added to ready queue [Q A1 A5 A6]
+time 346ms: Process A4 arrived; added to ready queue [Q A1 A5 A6 A4]
+time 357ms: Process A7 arrived; added to ready queue [Q A1 A5 A6 A4 A7]
+time 456ms: Process A2 arrived; added to ready queue [Q A1 A5 A6 A4 A7 A2]
+time 758ms: Process A3 arrived; added to ready queue [Q A1 A5 A6 A4 A7 A2 A3]
+time 3821ms: Process A0 completed a CPU burst; 28 bursts to go [Q A1 A5 A6 A4 A7 A2 A3]
+time 3821ms: Process A0 switching out of CPU; blocking on I/O until time 4510ms [Q A1 A5 A6 A4 A7 A2 A3]
+time 3827ms: Process A1 started using the CPU for 2828ms burst [Q A5 A6 A4 A7 A2 A3]
+time 4510ms: Process A0 completed I/O; added to ready queue [Q A5 A6 A4 A7 A2 A3 A0]
+time 6655ms: Process A1 completed a CPU burst; 30 bursts to go [Q A5 A6 A4 A7 A2 A3 A0]
+time 6655ms: Process A1 switching out of CPU; blocking on I/O until time 6980ms [Q A5 A6 A4 A7 A2 A3 A0]
+time 6661ms: Process A5 started using the CPU for 564ms burst [Q A6 A4 A7 A2 A3 A0]
+time 6980ms: Process A1 completed I/O; added to ready queue [Q A6 A4 A7 A2 A3 A0 A1]
+time 7225ms: Process A5 terminated [Q A6 A4 A7 A2 A3 A0 A1]
+time 7231ms: Process A6 started using the CPU for 761ms burst [Q A4 A7 A2 A3 A0 A1]
+time 7992ms: Process A6 completed a CPU burst; 26 bursts to go [Q A4 A7 A2 A3 A0 A1]
+time 7992ms: Process A6 switching out of CPU; blocking on I/O until time 10259ms [Q A4 A7 A2 A3 A0 A1]
+time 7998ms: Process A4 started using the CPU for 2428ms burst [Q A7 A2 A3 A0 A1]
+time 19820ms: Process A4 terminated [Q A2 A3 A0 A1 A7 A6]
+time 71120ms: Process A2 terminated [Q A6 A3 A7 A0 A1]
+time 122158ms: Process A3 terminated [Q A7 A1 A6 A0]
+time 174453ms: Process A0 terminated [Q A7 A1]
+time 178763ms: Process A7 terminated [Q empty]
+time 182131ms: Process A1 terminated [Q empty]
+time 207272ms: Process A6 terminated [Q empty]
+time 207275ms: Simulator ended for FCFS [Q empty]
+
+time 0ms: Simulator started for SJF [Q empty]
+time 54ms: Process A0 (tau 1000ms) arrived; added to ready queue [Q A0]
+time 56ms: Process A1 (tau 1000ms) arrived; added to ready queue [Q A1]
+time 57ms: Process A0 (tau 1000ms) started using the CPU for 3764ms burst [Q A1]
+time 115ms: Process A5 (tau 1000ms) arrived; added to ready queue [Q A1 A5]
+time 242ms: Process A6 (tau 1000ms) arrived; added to ready queue [Q A1 A5 A6]
+time 346ms: Process A4 (tau 1000ms) arrived; added to ready queue [Q A1 A4 A5 A6]
+time 357ms: Process A7 (tau 1000ms) arrived; added to ready queue [Q A1 A4 A5 A6 A7]
+time 456ms: Process A2 (tau 1000ms) arrived; added to ready queue [Q A1 A2 A4 A5 A6 A7]
+time 758ms: Process A3 (tau 1000ms) arrived; added to ready queue [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Process A0 (tau 1000ms) completed a CPU burst; 28 bursts to go [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Recalculated tau for process A0: old tau 1000ms ==> new tau 3626ms [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Process A0 switching out of CPU; blocking on I/O until time 4510ms [Q A1 A2 A3 A4 A5 A6 A7]
+time 3827ms: Process A1 (tau 1000ms) started using the CPU for 2828ms burst [Q A2 A3 A4 A5 A6 A7]
+time 4510ms: Process A0 (tau 3626ms) completed I/O; added to ready queue [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Process A1 (tau 1000ms) completed a CPU burst; 30 bursts to go [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Recalculated tau for process A1: old tau 1000ms ==> new tau 2737ms [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Process A1 switching out of CPU; blocking on I/O until time 6980ms [Q A2 A3 A4 A5 A6 A7 A0]
+time 6661ms: Process A2 (tau 1000ms) started using the CPU for 1896ms burst [Q A3 A4 A5 A6 A7 A0]
+time 6980ms: Process A1 (tau 2737ms) completed I/O; added to ready queue [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Process A2 (tau 1000ms) completed a CPU burst; 8 bursts to go [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Recalculated tau for process A2: old tau 1000ms ==> new tau 1852ms [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Process A2 switching out of CPU; blocking on I/O until time 9178ms [Q A3 A4 A5 A6 A7 A1 A0]
+time 8563ms: Process A3 (tau 1000ms) started using the CPU for 548ms burst [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Process A3 (tau 1000ms) completed a CPU burst; 15 bursts to go [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Recalculated tau for process A3: old tau 1000ms ==> new tau 571ms [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Process A3 switching out of CPU; blocking on I/O until time 9913ms [Q A4 A5 A6 A7 A1 A0]
+time 9117ms: Process A4 (tau 1000ms) started using the CPU for 2428ms burst [Q A5 A6 A7 A1 A0]
+time 9178ms: Process A2 (tau 1852ms) completed I/O; added to ready queue [Q A5 A6 A7 A2 A1 A0]
+time 9913ms: Process A3 (tau 571ms) completed I/O; added to ready queue [Q A3 A5 A6 A7 A2 A1 A0]
+time 12549ms: Process A5 terminated [Q A6 A7 A2 A4 A1 A0]
+time 26265ms: Process A4 terminated [Q A7 A1 A2 A0 A3]
+time 50653ms: Process A2 terminated [Q A6 A1 A0 A3]
+time 117816ms: Process A7 terminated [Q A0 A3 A1]
+time 131125ms: Process A3 terminated [Q A6 A1 A0]
+time 156687ms: Process A6 terminated [Q A0]
+time 173670ms: Process A0 terminated [Q A1]
+time 186904ms: Process A1 terminated [Q empty]
+time 186907ms: Simulator ended for SJF [Q empty]
+
+time 0ms: Simulator started for SRT [Q empty]
+time 54ms: Process A0 (tau 1000ms) arrived; added to ready queue [Q A0]
+time 56ms: Process A1 (tau 1000ms) arrived; added to ready queue [Q A1]
+time 57ms: Process A0 (tau 1000ms) started using the CPU for 3764ms burst [Q A1]
+time 115ms: Process A5 (tau 1000ms) arrived; added to ready queue [Q A1 A5]
+time 242ms: Process A6 (tau 1000ms) arrived; added to ready queue [Q A1 A5 A6]
+time 346ms: Process A4 (tau 1000ms) arrived; added to ready queue [Q A1 A4 A5 A6]
+time 357ms: Process A7 (tau 1000ms) arrived; added to ready queue [Q A1 A4 A5 A6 A7]
+time 456ms: Process A2 (tau 1000ms) arrived; added to ready queue [Q A1 A2 A4 A5 A6 A7]
+time 758ms: Process A3 (tau 1000ms) arrived; added to ready queue [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Process A0 (tau 1000ms) completed a CPU burst; 28 bursts to go [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Recalculated tau for process A0: old tau 1000ms ==> new tau 3626ms [Q A1 A2 A3 A4 A5 A6 A7]
+time 3821ms: Process A0 switching out of CPU; blocking on I/O until time 4510ms [Q A1 A2 A3 A4 A5 A6 A7]
+time 3827ms: Process A1 (tau 1000ms) started using the CPU for 2828ms burst [Q A2 A3 A4 A5 A6 A7]
+time 4510ms: Process A0 (tau 3626ms) completed I/O; added to ready queue [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Process A1 (tau 1000ms) completed a CPU burst; 30 bursts to go [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Recalculated tau for process A1: old tau 1000ms ==> new tau 2737ms [Q A2 A3 A4 A5 A6 A7 A0]
+time 6655ms: Process A1 switching out of CPU; blocking on I/O until time 6980ms [Q A2 A3 A4 A5 A6 A7 A0]
+time 6661ms: Process A2 (tau 1000ms) started using the CPU for 1896ms burst [Q A3 A4 A5 A6 A7 A0]
+time 6980ms: Process A1 (tau 2737ms) completed I/O; added to ready queue [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Process A2 (tau 1000ms) completed a CPU burst; 8 bursts to go [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Recalculated tau for process A2: old tau 1000ms ==> new tau 1852ms [Q A3 A4 A5 A6 A7 A1 A0]
+time 8557ms: Process A2 switching out of CPU; blocking on I/O until time 9178ms [Q A3 A4 A5 A6 A7 A1 A0]
+time 8563ms: Process A3 (tau 1000ms) started using the CPU for 548ms burst [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Process A3 (tau 1000ms) completed a CPU burst; 15 bursts to go [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Recalculated tau for process A3: old tau 1000ms ==> new tau 571ms [Q A4 A5 A6 A7 A1 A0]
+time 9111ms: Process A3 switching out of CPU; blocking on I/O until time 9913ms [Q A4 A5 A6 A7 A1 A0]
+time 9117ms: Process A4 (tau 1000ms) started using the CPU for 2428ms burst [Q A5 A6 A7 A1 A0]
+time 9178ms: Process A2 (tau 1852ms) completed I/O; added to ready queue [Q A5 A6 A7 A2 A1 A0]
+time 9913ms: Process A3 (tau 571ms) completed I/O; added to ready queue [Q A3 A5 A6 A7 A2 A1 A0]
+time 12549ms: Process A5 terminated [Q A6 A7 A2 A4 A1 A0]
+time 26277ms: Process A4 terminated [Q A7 A1 A2 A0 A3]
+time 60609ms: Process A2 terminated [Q A1 A0 A3]
+time 107897ms: Process A7 terminated [Q A0 A3 A1]
+time 130829ms: Process A3 terminated [Q A0 A1]
+time 133641ms: Process A6 terminated [Q A0 A1]
+time 173853ms: Process A0 terminated [Q A1]
+time 187087ms: Process A1 terminated [Q empty]
+time 187090ms: Simulator ended for SRT [Q empty]
+
+time 0ms: Simulator started for RR [Q empty]
+time 54ms: Process A0 arrived; added to ready queue [Q A0]
+time 56ms: Process A1 arrived; added to ready queue [Q A1]
+time 57ms: Process A0 started using the CPU for 3764ms burst [Q A1]
+time 115ms: Process A5 arrived; added to ready queue [Q A1 A5]
+time 185ms: Time slice expired; preempting process A0 with 3636ms remaining [Q A1 A5]
+time 191ms: Process A1 started using the CPU for 2828ms burst [Q A5 A0]
+time 242ms: Process A6 arrived; added to ready queue [Q A5 A0 A6]
+time 319ms: Time slice expired; preempting process A1 with 2700ms remaining [Q A5 A0 A6]
+time 325ms: Process A5 started using the CPU for 564ms burst [Q A0 A6 A1]
+time 346ms: Process A4 arrived; added to ready queue [Q A0 A6 A1 A4]
+time 357ms: Process A7 arrived; added to ready queue [Q A0 A6 A1 A4 A7]
+time 453ms: Time slice expired; preempting process A5 with 436ms remaining [Q A0 A6 A1 A4 A7]
+time 456ms: Process A2 arrived; added to ready queue [Q A0 A6 A1 A4 A7 A5 A2]
+time 459ms: Process A0 started using the CPU for remaining 3636ms of 3764ms burst [Q A6 A1 A4 A7 A5 A2]
+time 587ms: Time slice expired; preempting process A0 with 3508ms remaining [Q A6 A1 A4 A7 A5 A2]
+time 593ms: Process A6 started using the CPU for 761ms burst [Q A1 A4 A7 A5 A2 A0]
+time 721ms: Time slice expired; preempting process A6 with 633ms remaining [Q A1 A4 A7 A5 A2 A0]
+time 727ms: Process A1 started using the CPU for remaining 2700ms of 2828ms burst [Q A4 A7 A5 A2 A0 A6]
+time 758ms: Process A3 arrived; added to ready queue [Q A4 A7 A5 A2 A0 A6 A3]
+time 855ms: Time slice expired; preempting process A1 with 2572ms remaining [Q A4 A7 A5 A2 A0 A6 A3]
+time 861ms: Process A4 started using the CPU for 2428ms burst [Q A7 A5 A2 A0 A6 A3 A1]
+time 989ms: Time slice expired; preempting process A4 with 2300ms remaining [Q A7 A5 A2 A0 A6 A3 A1]
+time 995ms: Process A7 started using the CPU for 297ms burst [Q A5 A2 A0 A6 A3 A1 A4]
+time 1123ms: Time slice expired; preempting process A7 with 169ms remaining [Q A5 A2 A0 A6 A3 A1 A4]
+time 1129ms: Process A5 started using the CPU for remaining 436ms of 564ms burst [Q A2 A0 A6 A3 A1 A4 A7]
+time 1257ms: Time slice expired; preempting process A5 with 308ms remaining [Q A2 A0 A6 A3 A1 A4 A7]
+time 1263ms: Process A2 started using the CPU for 1896ms burst [Q A0 A6 A3 A1 A4 A7 A5]
+time 1391ms: Time slice expired; preempting process A2 with 1768ms remaining [Q A0 A6 A3 A1 A4 A7 A5]
+time 1397ms: Process A0 started using the CPU for remaining 3508ms of 3764ms burst [Q A6 A3 A1 A4 A7 A5 A2]
+time 1525ms: Time slice expired; preempting process A0 with 3380ms remaining [Q A6 A3 A1 A4 A7 A5 A2]
+time 1531ms: Process A6 started using the CPU for remaining 633ms of 761ms burst [Q A3 A1 A4 A7 A5 A2 A0]
+time 1659ms: Time slice expired; preempting process A6 with 505ms remaining [Q A3 A1 A4 A7 A5 A2 A0]
+time 1665ms: Process A3 started using the CPU for 548ms burst [Q A1 A4 A7 A5 A2 A0 A6]
+time 1793ms: Time slice expired; preempting process A3 with 420ms remaining [Q A1 A4 A7 A5 A2 A0 A6]
+time 1799ms: Process A1 started using the CPU for remaining 2572ms of 2828ms burst [Q A4 A7 A5 A2 A0 A6 A3]
+time 1927ms: Time slice expired; preempting process A1 with 2444ms remaining [Q A4 A7 A5 A2 A0 A6 A3]
+time 1933ms: Process A4 started using the CPU for remaining 2300ms of 2428ms burst [Q A7 A5 A2 A0 A6 A3 A1]
+time 2061ms: Time slice expired; preempting process A4 with 2172ms remaining [Q A7 A5 A2 A0 A6 A3 A1]
+time 2067ms: Process A7 started using the CPU for remaining 169ms of 297ms burst [Q A5 A2 A0 A6 A3 A1 A4]
+time 2195ms: Time slice expired; preempting process A7 with 41ms remaining [Q A5 A2 A0 A6 A3 A1 A4]
+time 2201ms: Process A5 started using the CPU for remaining 308ms of 564ms burst [Q A2 A0 A6 A3 A1 A4 A7]
+time 2329ms: Time slice expired; preempting process A5 with 180ms remaining [Q A2 A0 A6 A3 A1 A4 A7]
+time 2335ms: Process A2 started using the CPU for remaining 1768ms of 1896ms burst [Q A0 A6 A3 A1 A4 A7 A5]
+time 2463ms: Time slice expired; preempting process A2 with 1640ms remaining [Q A0 A6 A3 A1 A4 A7 A5]
+time 2469ms: Process A0 started using the CPU for remaining 3380ms of 3764ms burst [Q A6 A3 A1 A4 A7 A5 A2]
+time 2597ms: Time slice expired; preempting process A0 with 3252ms remaining [Q A6 A3 A1 A4 A7 A5 A2]
+time 2603ms: Process A6 started using the CPU for remaining 505ms of 761ms burst [Q A3 A1 A4 A7 A5 A2 A0]
+time 2731ms: Time slice expired; preempting process A6 with 377ms remaining [Q A3 A1 A4 A7 A5 A2 A0]
+time 2737ms: Process A3 started using the CPU for remaining 420ms of 548ms burst [Q A1 A4 A7 A5 A2 A0 A6]
+time 2865ms: Time slice expired; preempting process A3 with 292ms remaining [Q A1 A4 A7 A5 A2 A0 A6]
+time 2871ms: Process A1 started using the CPU for remaining 2444ms of 2828ms burst [Q A4 A7 A5 A2 A0 A6 A3]
+time 2999ms: Time slice expired; preempting process A1 with 2316ms remaining [Q A4 A7 A5 A2 A0 A6 A3]
+time 3005ms: Process A4 started using the CPU for remaining 2172ms of 2428ms burst [Q A7 A5 A2 A0 A6 A3 A1]
+time 3133ms: Time slice expired; preempting process A4 with 2044ms remaining [Q A7 A5 A2 A0 A6 A3 A1]
+time 3139ms: Process A7 started using the CPU for remaining 41ms of 297ms burst [Q A5 A2 A0 A6 A3 A1 A4]
+time 3180ms: Process A7 completed a CPU burst; 20 bursts to go [Q A5 A2 A0 A6 A3 A1 A4]
+time 3180ms: Process A7 switching out of CPU; blocking on I/O until time 11047ms [Q A5 A2 A0 A6 A3 A1 A4]
+time 3186ms: Process A5 started using the CPU for remaining 180ms of 564ms burst [Q A2 A0 A6 A3 A1 A4]
+time 3314ms: Time slice expired; preempting process A5 with 52ms remaining [Q A2 A0 A6 A3 A1 A4]
+time 3320ms: Process A2 started using the CPU for remaining 1640ms of 1896ms burst [Q A0 A6 A3 A1 A4 A5]
+time 3448ms: Time slice expired; preempting process A2 with 1512ms remaining [Q A0 A6 A3 A1 A4 A5]
+time 3454ms: Process A0 started using the CPU for remaining 3252ms of 3764ms burst [Q A6 A3 A1 A4 A5 A2]
+time 3582ms: Time slice expired; preempting process A0 with 3124ms remaining [Q A6 A3 A1 A4 A5 A2]
+time 3588ms: Process A6 started using the CPU for remaining 377ms of 761ms burst [Q A3 A1 A4 A5 A2 A0]
+time 3716ms: Time slice expired; preempting process A6 with 249ms remaining [Q A3 A1 A4 A5 A2 A0]
+time 3722ms: Process A3 started using the CPU for remaining 292ms of 548ms burst [Q A1 A4 A5 A2 A0 A6]
+time 3850ms: Time slice expired; preempting process A3 with 164ms remaining [Q A1 A4 A5 A2 A0 A6]
+time 3856ms: Process A1 started using the CPU for remaining 2316ms of 2828ms burst [Q A4 A5 A2 A0 A6 A3]
+time 3984ms: Time slice expired; preempting process A1 with 2188ms remaining [Q A4 A5 A2 A0 A6 A3]
+time 3990ms: Process A4 started using the CPU for remaining 2044ms of 2428ms burst [Q A5 A2 A0 A6 A3 A1]
+time 4118ms: Time slice expired; preempting process A4 with 1916ms remaining [Q A5 A2 A0 A6 A3 A1]
+time 4124ms: Process A5 started using the CPU for remaining 52ms of 564ms burst [Q A2 A0 A6 A3 A1 A4]
+time 4176ms: Process A5 terminated [Q A2 A0 A6 A3 A1 A4]
+time 4182ms: Process A2 started using the CPU for remaining 1512ms of 1896ms burst [Q A0 A6 A3 A1 A4]
+time 4310ms: Time slice expired; preempting process A2 with 1384ms remaining [Q A0 A6 A3 A1 A4]
+time 4316ms: Process A0 started using the CPU for remaining 3124ms of 3764ms burst [Q A6 A3 A1 A4 A2]
+time 4444ms: Time slice expired; preempting process A0 with 2996ms remaining [Q A6 A3 A1 A4 A2]
+time 4450ms: Process A6 started using the CPU for remaining 249ms of 761ms burst [Q A3 A1 A4 A2 A0]
+time 4578ms: Time slice expired; preempting process A6 with 121ms remaining [Q A3 A1 A4 A2 A0]
+time 4584ms: Process A3 started using the CPU for remaining 164ms of 548ms burst [Q A1 A4 A2 A0 A6]
+time 4712ms: Time slice expired; preempting process A3 with 36ms remaining [Q A1 A4 A2 A0 A6]
+time 4718ms: Process A1 started using the CPU for remaining 2188ms of 2828ms burst [Q A4 A2 A0 A6 A3]
+time 4846ms: Time slice expired; preempting process A1 with 2060ms remaining [Q A4 A2 A0 A6 A3]
+time 4852ms: Process A4 started using the CPU for remaining 1916ms of 2428ms burst [Q A2 A0 A6 A3 A1]
+time 4980ms: Time slice expired; preempting process A4 with 1788ms remaining [Q A2 A0 A6 A3 A1]
+time 4986ms: Process A2 started using the CPU for remaining 1384ms of 1896ms burst [Q A0 A6 A3 A1 A4]
+time 5114ms: Time slice expired; preempting process A2 with 1256ms remaining [Q A0 A6 A3 A1 A4]
+time 5120ms: Process A0 started using the CPU for remaining 2996ms of 3764ms burst [Q A6 A3 A1 A4 A2]
+time 5248ms: Time slice expired; preempting process A0 with 2868ms remaining [Q A6 A3 A1 A4 A2]
+time 5254ms: Process A6 started using the CPU for remaining 121ms of 761ms burst [Q A3 A1 A4 A2 A0]
+time 5375ms: Process A6 completed a CPU burst; 26 bursts to go [Q A3 A1 A4 A2 A0]
+time 5375ms: Process A6 switching out of CPU; blocking on I/O until time 7642ms [Q A3 A1 A4 A2 A0]
+time 5381ms: Process A3 started using the CPU for remaining 36ms of 548ms burst [Q A1 A4 A2 A0]
+time 5417ms: Process A3 completed a CPU burst; 15 bursts to go [Q A1 A4 A2 A0]
+time 5417ms: Process A3 switching out of CPU; blocking on I/O until time 6219ms [Q A1 A4 A2 A0]
+time 5423ms: Process A1 started using the CPU for remaining 2060ms of 2828ms burst [Q A4 A2 A0]
+time 5551ms: Time slice expired; preempting process A1 with 1932ms remaining [Q A4 A2 A0]
+time 5557ms: Process A4 started using the CPU for remaining 1788ms of 2428ms burst [Q A2 A0 A1]
+time 5685ms: Time slice expired; preempting process A4 with 1660ms remaining [Q A2 A0 A1]
+time 5691ms: Process A2 started using the CPU for remaining 1256ms of 1896ms burst [Q A0 A1 A4]
+time 5819ms: Time slice expired; preempting process A2 with 1128ms remaining [Q A0 A1 A4]
+time 5825ms: Process A0 started using the CPU for remaining 2868ms of 3764ms burst [Q A1 A4 A2]
+time 5953ms: Time slice expired; preempting process A0 with 2740ms remaining [Q A1 A4 A2]
+time 5959ms: Process A1 started using the CPU for remaining 1932ms of 2828ms burst [Q A4 A2 A0]
+time 6087ms: Time slice expired; preempting process A1 with 1804ms remaining [Q A4 A2 A0]
+time 6093ms: Process A4 started using the CPU for remaining 1660ms of 2428ms burst [Q A2 A0 A1]
+time 6219ms: Process A3 completed I/O; added to ready queue [Q A2 A0 A1 A3]
+time 6221ms: Time slice expired; preempting process A4 with 1532ms remaining [Q A2 A0 A1 A3]
+time 6227ms: Process A2 started using the CPU for remaining 1128ms of 1896ms burst [Q A0 A1 A3 A4]
+time 6355ms: Time slice expired; preempting process A2 with 1000ms remaining [Q A0 A1 A3 A4]
+time 6361ms: Process A0 started using the CPU for remaining 2740ms of 3764ms burst [Q A1 A3 A4 A2]
+time 6489ms: Time slice expired; preempting process A0 with 2612ms remaining [Q A1 A3 A4 A2]
+time 6495ms: Process A1 started using the CPU for remaining 1804ms of 2828ms burst [Q A3 A4 A2 A0]
+time 6623ms: Time slice expired; preempting process A1 with 1676ms remaining [Q A3 A4 A2 A0]
+time 6629ms: Process A3 started using the CPU for 428ms burst [Q A4 A2 A0 A1]
+time 6757ms: Time slice expired; preempting process A3 with 300ms remaining [Q A4 A2 A0 A1]
+time 6763ms: Process A4 started using the CPU for remaining 1532ms of 2428ms burst [Q A2 A0 A1 A3]
+time 6891ms: Time slice expired; preempting process A4 with 1404ms remaining [Q A2 A0 A1 A3]
+time 6897ms: Process A2 started using the CPU for remaining 1000ms of 1896ms burst [Q A0 A1 A3 A4]
+time 7025ms: Time slice expired; preempting process A2 with 872ms remaining [Q A0 A1 A3 A4]
+time 7031ms: Process A0 started using the CPU for remaining 2612ms of 3764ms burst [Q A1 A3 A4 A2]
+time 7159ms: Time slice expired; preempting process A0 with 2484ms remaining [Q A1 A3 A4 A2]
+time 7165ms: Process A1 started using the CPU for remaining 1676ms of 2828ms burst [Q A3 A4 A2 A0]
+time 7293ms: Time slice expired; preempting process A1 with 1548ms remaining [Q A3 A4 A2 A0]
+time 7299ms: Process A3 started using the CPU for remaining 300ms of 428ms burst [Q A4 A2 A0 A1]
+time 7427ms: Time slice expired; preempting process A3 with 172ms remaining [Q A4 A2 A0 A1]
+time 7433ms: Process A4 started using the CPU for remaining 1404ms of 2428ms burst [Q A2 A0 A1 A3]
+time 7561ms: Time slice expired; preempting process A4 with 1276ms remaining [Q A2 A0 A1 A3]
+time 7567ms: Process A2 started using the CPU for remaining 872ms of 1896ms burst [Q A0 A1 A3 A4]
+time 7642ms: Process A6 completed I/O; added to ready queue [Q A0 A1 A3 A4 A6]
+time 7695ms: Time slice expired; preempting process A2 with 744ms remaining [Q A0 A1 A3 A4 A6]
+time 7701ms: Process A0 started using the CPU for remaining 2484ms of 3764ms burst [Q A1 A3 A4 A6 A2]
+time 7829ms: Time slice expired; preempting process A0 with 2356ms remaining [Q A1 A3 A4 A6 A2]
+time 7835ms: Process A1 started using the CPU for remaining 1548ms of 2828ms burst [Q A3 A4 A6 A2 A0]
+time 7963ms: Time slice expired; preempting process A1 with 1420ms remaining [Q A3 A4 A6 A2 A0]
+time 7969ms: Process A3 started using the CPU for remaining 172ms of 428ms burst [Q A4 A6 A2 A0 A1]
+time 8097ms: Time slice expired; preempting process A3 with 44ms remaining [Q A4 A6 A2 A0 A1]
+time 8103ms: Process A4 started using the CPU for remaining 1276ms of 2428ms burst [Q A6 A2 A0 A1 A3]
+time 8231ms: Time slice expired; preempting process A4 with 1148ms remaining [Q A6 A2 A0 A1 A3]
+time 8237ms: Process A6 started using the CPU for 903ms burst [Q A2 A0 A1 A3 A4]
+time 8365ms: Time slice expired; preempting process A6 with 775ms remaining [Q A2 A0 A1 A3 A4]
+time 8371ms: Process A2 started using the CPU for remaining 744ms of 1896ms burst [Q A0 A1 A3 A4 A6]
+time 8499ms: Time slice expired; preempting process A2 with 616ms remaining [Q A0 A1 A3 A4 A6]
+time 8505ms: Process A0 started using the CPU for remaining 2356ms of 3764ms burst [Q A1 A3 A4 A6 A2]
+time 8633ms: Time slice expired; preempting process A0 with 2228ms remaining [Q A1 A3 A4 A6 A2]
+time 8639ms: Process A1 started using the CPU for remaining 1420ms of 2828ms burst [Q A3 A4 A6 A2 A0]
+time 8767ms: Time slice expired; preempting process A1 with 1292ms remaining [Q A3 A4 A6 A2 A0]
+time 8773ms: Process A3 started using the CPU for remaining 44ms of 428ms burst [Q A4 A6 A2 A0 A1]
+time 8817ms: Process A3 completed a CPU burst; 14 bursts to go [Q A4 A6 A2 A0 A1]
+time 8817ms: Process A3 switching out of CPU; blocking on I/O until time 9758ms [Q A4 A6 A2 A0 A1]
+time 8823ms: Process A4 started using the CPU for remaining 1148ms of 2428ms burst [Q A6 A2 A0 A1]
+time 8951ms: Time slice expired; preempting process A4 with 1020ms remaining [Q A6 A2 A0 A1]
+time 8957ms: Process A6 started using the CPU for remaining 775ms of 903ms burst [Q A2 A0 A1 A4]
+time 9085ms: Time slice expired; preempting process A6 with 647ms remaining [Q A2 A0 A1 A4]
+time 9091ms: Process A2 started using the CPU for remaining 616ms of 1896ms burst [Q A0 A1 A4 A6]
+time 9219ms: Time slice expired; preempting process A2 with 488ms remaining [Q A0 A1 A4 A6]
+time 9225ms: Process A0 started using the CPU for remaining 2228ms of 3764ms burst [Q A1 A4 A6 A2]
+time 9353ms: Time slice expired; preempting process A0 with 2100ms remaining [Q A1 A4 A6 A2]
+time 9359ms: Process A1 started using the CPU for remaining 1292ms of 2828ms burst [Q A4 A6 A2 A0]
+time 9487ms: Time slice expired; preempting process A1 with 1164ms remaining [Q A4 A6 A2 A0]
+time 9493ms: Process A4 started using the CPU for remaining 1020ms of 2428ms burst [Q A6 A2 A0 A1]
+time 9621ms: Time slice expired; preempting process A4 with 892ms remaining [Q A6 A2 A0 A1]
+time 9627ms: Process A6 started using the CPU for remaining 647ms of 903ms burst [Q A2 A0 A1 A4]
+time 9755ms: Time slice expired; preempting process A6 with 519ms remaining [Q A2 A0 A1 A4]
+time 9758ms: Process A3 completed I/O; added to ready queue [Q A2 A0 A1 A4 A6 A3]
+time 9761ms: Process A2 started using the CPU for remaining 488ms of 1896ms burst [Q A0 A1 A4 A6 A3]
+time 9889ms: Time slice expired; preempting process A2 with 360ms remaining [Q A0 A1 A4 A6 A3]
+time 9895ms: Process A0 started using the CPU for remaining 2100ms of 3764ms burst [Q A1 A4 A6 A3 A2]
+time 30535ms: Process A4 terminated [Q A3 A1 A0 A2]
+time 82453ms: Process A2 terminated [Q A0 A1 A3]
+time 115780ms: Process A7 terminated [Q A1 A3 A0]
+time 137712ms: Process A3 terminated [Q A6 A0 A1]
+time 148225ms: Process A6 terminated [Q A1 A0]
+time 190182ms: Process A0 terminated [Q A1]
+time 194053ms: Process A1 terminated [Q empty]
+time 194056ms: Simulator ended for RR [Q empty]
