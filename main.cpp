@@ -959,10 +959,15 @@ int main(int argc, char* argv[]) {
     }
 
     // Print simulation parameters
-    std::cout << "<<< -- process set (n=" << argv[1] << ") with " << argv[2]
-              << (numCpuBound != 1 ? " CPU-bound processes\n" : " CPU-bound process\n")
-              << "<<< -- seed=" << argv[3] << "; lambda=" << std::fixed << std::setprecision(6) 
+    std::cout << "<<< -- process set (n=" << argv[1] << ") with " << argv[2];
+    if (numCpuBound != 1) {
+        std::cout << " CPU-bound processes\n";
+    } else {
+        std::cout << " CPU-bound process\n";
+    }
+    std::cout << "<<< -- seed=" << argv[3] << "; lambda=" << std::fixed << std::setprecision(6)
               << arrivalLambda << "; bound=" << argv[5] << "\n";
+    
     srand48(seed);
     // Create processes
     std::list<Process*> processes;
@@ -1017,12 +1022,47 @@ int main(int argc, char* argv[]) {
         // Add process to list
         processes.push_back(proc);
     }
-    float cpuCpuAvg = (numCpuCpu != 0) ? (cpuCpuTotal / numCpuCpu) : 0;
-    float cpuIoAvg = (numCpuIo != 0) ? (cpuIoTotal / numCpuIo) : 0;
-    float cpuAvg = ((numCpuCpu + numIoCpu) != 0) ? std::ceil(1000 * (cpuCpuTotal + ioCpuTotal) / (numCpuCpu + numIoCpu)) / 1000 : 0;
-    float ioCpuAvg = (numIoCpu != 0) ? (ioCpuTotal / numIoCpu) : 0;
-    float ioIoAvg = (numIoIo != 0) ? (ioIoTotal / numIoIo) : 0;
-    float ioAvg = ((numCpuIo + numIoIo) != 0) ? std::ceil(1000 * (cpuIoTotal + ioIoTotal) / (numCpuIo + numIoIo)) / 1000 : 0;
+    float cpuCpuAvg;
+    if (numCpuCpu != 0) {
+        cpuCpuAvg = cpuCpuTotal / numCpuCpu;
+    } else {
+        cpuCpuAvg = 0;
+    }
+
+    float cpuIoAvg;
+    if (numCpuIo != 0) {
+        cpuIoAvg = cpuIoTotal / numCpuIo;
+    } else {
+        cpuIoAvg = 0;
+    }
+
+    float cpuAvg;
+    if ((numCpuCpu + numIoCpu) != 0) {
+        cpuAvg = std::ceil(1000 * (cpuCpuTotal + ioCpuTotal) / (numCpuCpu + numIoCpu)) / 1000;
+    } else {
+        cpuAvg = 0;
+    }
+
+    float ioCpuAvg;
+    if (numIoCpu != 0) {
+        ioCpuAvg = ioCpuTotal / numIoCpu;
+    } else {
+        ioCpuAvg = 0;
+    }
+
+    float ioIoAvg;
+    if (numIoIo != 0) {
+        ioIoAvg = ioIoTotal / numIoIo;
+    } else {
+        ioIoAvg = 0;
+    }
+
+    float ioAvg;
+    if ((numCpuIo + numIoIo) != 0) {
+        ioAvg = std::ceil(1000 * (cpuIoTotal + ioIoTotal) / (numCpuIo + numIoIo)) / 1000;
+    } else {
+        ioAvg = 0;
+    }
 
     // Print process information
     for (Process* proc : processes) {
@@ -1030,9 +1070,11 @@ int main(int argc, char* argv[]) {
             std::cout << "\nCPU-bound";
         else
             std::cout << "\nI/O-bound";
-        std::cout << " process " << proc->id << ": arrival time " << proc->arrival_time 
-                  << "ms; " << proc->num_cpu_bursts
-                  << (proc->num_cpu_bursts != 1 ? " CPU bursts\n" : " CPU burst\n");
+        std::cout << " process " << proc->id << ": arrival time " << proc->arrival_time << "ms; " << proc->num_cpu_bursts;
+        if (proc->num_cpu_bursts != 1)
+            std::cout << " CPU bursts:\n";
+        else
+            std::cout << " CPU burst:\n";
         for (int j = 0; j < proc->num_cpu_bursts * 2 - 1; ++j) {
             if (j % 2 == 0)
                 std::cout << "==> CPU burst " << proc->burst_times[j] << "ms";
@@ -1041,6 +1083,7 @@ int main(int argc, char* argv[]) {
         }
         std::cout << "\n";
     }
+    
 
     // Print simulation information
     std::ofstream simout("simout.txt");
@@ -1060,45 +1103,48 @@ int main(int argc, char* argv[]) {
     simout << "-- overall average I/O burst time: " 
            << std::fixed << std::setprecision(3) << ioAvg << " ms\n\n";
     simout.close();
-    std::cout << "<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << contextSwitchTime 
+    std::cout << "\n<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << contextSwitchTime 
               << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha 
               << "; t_slice=" << timeSlice << "ms\n";
 
     // Run simulations
-    OpSys* simulation = new OpSys();
-    simulation->contextSwitchTime = contextSwitchTime;
-    simulation->timeSlice = timeSlice;
+    OpSys simulation;
+    simulation.contextSwitchTime = contextSwitchTime;
+    simulation.timeSlice = timeSlice;
     for (Process* proc : processes)
-        simulation->unfinished.insert(proc); 
+        simulation.unfinished.insert(proc);
     for (Process* proc : processes)
-        simulation->unarrived.push(proc); 
-    simulation->runFCFSScheduler();
+        simulation.unarrived.push(proc);
+    simulation.runFCFSScheduler();
     std::cout << "\n";
     for (Process* proc : processes) {
         proc->reset();
-        simulation->unfinished.insert(proc);
-        simulation->unarrived.push(proc);
+        simulation.unfinished.insert(proc);
+        simulation.unarrived.push(proc);
     }
-    simulation->runSJFScheduler();
+    simulation.runSJFScheduler();
     std::cout << "\n";
     for (Process* proc : processes) {
         proc->reset();
-        simulation->unfinished.insert(proc);
-        simulation->unarrived.push(proc);
+        simulation.unfinished.insert(proc);
+        simulation.unarrived.push(proc);
     }
-    simulation->runSRTScheduler();
+    simulation.runSRTScheduler();
     std::cout << "\n";
     for (Process* proc : processes) {
         proc->reset();
-        simulation->unfinished.insert(proc);
-        simulation->unarrived.push(proc);
+        simulation.unfinished.insert(proc);
+        simulation.unarrived.push(proc);
     }
-    simulation->runRoundRobinScheduler();
-    delete simulation;
+    simulation.runRoundRobinScheduler();
+
+    // No need to delete simulation since it is not dynamically allocated.
     for (Process* proc : processes) {
         delete [] proc->id;
         delete [] proc->burst_times;
         delete proc;
     }
+    std::cout << "\n";
     return 0;
+
 }
