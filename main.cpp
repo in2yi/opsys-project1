@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     }
 
     std::cout << "<<< -- process set (n=" << *(argv+1) << ") with " << *(argv+2)
-              << (n_cpu != 1 ? "CPU-bound processes\n" : " CPU-bound process\n") << "<<< -- seed=" << *(argv+3) << "; "
+              << (n_cpu != 1 ? " CPU-bound processes\n" : " CPU-bound process\n") << "<<< -- seed=" << *(argv+3) << "; "
               << "lambda=" << std::fixed << std::setprecision(6) << lambda << "; " 
               << "bound=" << *(argv+5) << "\n";
 
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
         if (p->is_cpu_bound) std::cout << "\nCPU-bound";
         else std::cout << "\nI/O-bound";
         std::cout << " process " << p->id << ": arrival time " << p->arrival_time << "ms; "
-             << p->num_cpu_bursts << (p->num_cpu_bursts != 1 ? " CPU bursts\n" : " CPU burst\n");
+             << p->num_cpu_bursts << (p->num_cpu_bursts != 1 ? " CPU bursts:\n" : " CPU burst:\n");
         for (int j = 0; j < p->num_cpu_bursts * 2 - 1; ++j)
         {
              if (j % 2 == 0)
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
     simout.close();
 
     /* Initialize P2 Simulation */
-    std::cout << "<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << tcs << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha << "; t_slice=" << tslice << "ms\n";
+    std::cout << "\n<<< PROJECT SIMULATIONS\n<<< -- t_cs=" << tcs << "ms; alpha=" << std::fixed << std::setprecision(2) << alpha << "; t_slice=" << tslice << "ms\n";
     OpSys* simulation = new OpSys();
     simulation->t_cs = tcs;
     simulation->tslice = tslice;
