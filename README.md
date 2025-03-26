@@ -1,13 +1,13 @@
 # How to compile
 
 ```bash
-$ clang++ main.cpp fcfs.cpp opsys.cpp process.cpp rr.cpp srt.cpp sjf.cpp -Wall -Wextra -lm
+$ clang++ main.cpp -Wall -Wextra -lm
 ```
 
 or
 
 ```bash
-$ g++ main.cpp fcfs.cpp opsys.cpp process.cpp rr.cpp srt.cpp sjf.cpp -Wall -Wextra -lm
+$ g++ main.cpp -Wall -Wextra -lm
 ```
 
 # How to run
