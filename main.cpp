@@ -856,7 +856,11 @@ void Process::updateProcess(int currentTime) {
         start_turnaround = currentTime;
     } else { // On I/O burst
         prev_tau = tau;
-        tau = std::ceil((alpha * burst_times[burst_index - 1]) + ((1.0 - alpha) * prev_tau));
+        if (pseudoRandomCPUBursts) {
+            tau = burst_times[burst_index - 1];
+        } else {
+            tau = std::ceil((alpha * burst_times[burst_index - 1]) + ((1.0 - alpha) * prev_tau));
+        }
         tau_remaining = tau;
         if (burst_index < num_total_bursts)
             time_remaining = burst_times[burst_index];
@@ -906,6 +910,7 @@ int maxBurstCeiling;
 int contextSwitchTime;
 double alpha;
 int timeSlice;
+bool pseudoRandomCPUBursts;
 
 /**
  * @brief Function to get the next exponential random variable
@@ -943,6 +948,14 @@ int main(int argc, char* argv[]) {
     contextSwitchTime = atoi(argv[6]);                 
     alpha = atof(argv[7]);
     timeSlice = atoi(argv[8]);
+    
+    
+    // Check to see if we are using actual bursts
+    if (alpha == -1) {
+        pseudoRandomCPUBursts = true;
+    } else {
+        pseudoRandomCPUBursts = false; 
+    }
 
     // Check for invalid arguments
     if (numProcesses <= 0 || numProcesses > 260) {
@@ -1018,7 +1031,6 @@ int main(int argc, char* argv[]) {
         proc->time_remaining = proc->t;
         proc->total_cpu_time = proc->t;
         proc->tau_remaining = proc->tau;
-
         // Add process to list
         processes.push_back(proc);
     }
